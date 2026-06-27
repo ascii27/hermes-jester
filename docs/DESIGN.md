@@ -79,6 +79,7 @@ Item **type is part of the path**. Scopes: `admin` implies all; `write` = submit
 | Method | Path | Scope | Purpose |
 |--------|------|-------|---------|
 | GET    | `/health` | — | liveness |
+| GET    | `/api/discover` | read | self-describing manifest: every type's purpose, content schema + example, and fetch URLs, plus the polling/ack mechanism (for hermes) |
 | GET    | `/api/types` | read | list types |
 | POST   | `/api/types` | admin | create type `{name, description, schema}` |
 | GET    | `/api/types/{type}` | read | fetch type |

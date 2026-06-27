@@ -12,9 +12,10 @@ from typing import Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 
-from . import items_repo, types_repo
+from . import discovery, items_repo, types_repo
 from .auth_api import require_scope
-from .deps import get_conn
+from .config import Settings
+from .deps import get_conn, get_settings
 from .models import AckRequest, ItemPatch, TypeCreate, TypeUpdate
 
 router = APIRouter(prefix="/api")
@@ -27,6 +28,19 @@ def _require_type(conn: sqlite3.Connection, type: str) -> dict:
     if type_def is None:
         raise HTTPException(status_code=404, detail=f"type {type!r} not found")
     return type_def
+
+
+# --- discovery ---
+
+@router.get("/discover")
+def discover(
+    conn: sqlite3.Connection = Depends(get_conn),
+    settings: Settings = Depends(get_settings),
+    _key: dict = Depends(require_scope("read")),
+):
+    """Self-describing manifest: every type's purpose, content shape, and how to
+    fetch it, plus the polling/ack mechanism. Intended for hermes."""
+    return discovery.build_manifest(types_repo.list_types(conn), settings.base_url)
 
 
 # --- types (REST resource) ---

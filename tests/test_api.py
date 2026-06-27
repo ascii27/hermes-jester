@@ -69,6 +69,27 @@ def test_revoked_token_is_401(env, tmp_path):
     assert r.status_code == 401
 
 
+# --- discovery ---
+
+def test_discover_requires_auth(env):
+    assert env.client.get("/api/discover").status_code == 401
+
+
+def test_discover_lists_registered_types(env):
+    _register_note(env)
+    r = env.client.get("/api/discover", headers=hdr(env.read))
+    assert r.status_code == 200
+    body = r.json()
+    assert body["service"] == "hermes-jester"
+    assert "/api/items/ack" in body["polling"]["ack"]
+    names = [t["name"] for t in body["types"]]
+    assert "note" in names
+    note = next(t for t in body["types"] if t["name"] == "note")
+    assert note["content_schema"] == NOTE_SCHEMA
+    assert note["example_content"] == {"text": "string"}
+    assert note["fetch"]["unread"].endswith("/api/item/note?unread=true")
+
+
 # --- types (REST) ---
 
 def test_register_and_get_type(env):
