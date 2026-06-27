@@ -22,10 +22,15 @@ class TypeUpdate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
-class ItemSubmit(BaseModel):
-    type: str
+class ItemBody(BaseModel):
+    """Body for submitting an item; the type comes from the path."""
+
     payload: Any
     metadata: dict = Field(default_factory=dict)
+
+
+class ItemPatch(BaseModel):
+    read: bool
 
 
 class AckRequest(BaseModel):

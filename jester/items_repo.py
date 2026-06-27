@@ -102,6 +102,19 @@ def ack(conn: sqlite3.Connection, ids: list[str]) -> int:
     return cur.rowcount
 
 
+def set_read(conn: sqlite3.Connection, item_id: str, read: bool) -> dict | None:
+    """Mark a single item read (read=True) or unread (read=False). Returns the
+    updated item, or None if it doesn't exist."""
+    if get_item(conn, item_id) is None:
+        return None
+    conn.execute(
+        "UPDATE items SET read_at = ? WHERE id = ?",
+        (clock.now() if read else None, item_id),
+    )
+    conn.commit()
+    return get_item(conn, item_id)
+
+
 def mark_unread(conn: sqlite3.Connection, ids: list[str]) -> int:
     """Reset items to unread. Returns number affected."""
     if not ids:

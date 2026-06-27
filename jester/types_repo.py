@@ -77,6 +77,18 @@ def update_type(
     return get_type(conn, name)
 
 
+def delete_type(conn: sqlite3.Connection, name: str) -> None:
+    """Delete a type. Raises NotFoundError if missing, ConflictError if items
+    of this type still exist (delete or reassign them first)."""
+    if get_type(conn, name) is None:
+        raise NotFoundError(f"type {name!r} not found")
+    count = conn.execute("SELECT COUNT(*) FROM items WHERE type = ?", (name,)).fetchone()[0]
+    if count:
+        raise ConflictError(f"type {name!r} still has {count} item(s); delete them first")
+    conn.execute("DELETE FROM types WHERE name = ?", (name,))
+    conn.commit()
+
+
 def validate_payload(schema: dict, payload: object) -> None:
     """Validate an item payload against a type's JSON Schema; raise on mismatch."""
     try:

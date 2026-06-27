@@ -64,3 +64,23 @@ def test_update_invalid_schema_rejected(conn):
     types_repo.register_type(conn, "note", "", NOTE_SCHEMA)
     with pytest.raises(SchemaInvalidError):
         types_repo.update_type(conn, "note", schema={"type": 123})
+
+
+def test_delete_type(conn):
+    types_repo.register_type(conn, "note", "", NOTE_SCHEMA)
+    types_repo.delete_type(conn, "note")
+    assert types_repo.get_type(conn, "note") is None
+
+
+def test_delete_missing_type_raises(conn):
+    with pytest.raises(NotFoundError):
+        types_repo.delete_type(conn, "ghost")
+
+
+def test_delete_type_with_items_conflicts(conn):
+    from jester import items_repo
+
+    types_repo.register_type(conn, "note", "", NOTE_SCHEMA)
+    items_repo.submit(conn, "note", {"text": "a"})
+    with pytest.raises(ConflictError):
+        types_repo.delete_type(conn, "note")

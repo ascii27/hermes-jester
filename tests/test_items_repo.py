@@ -107,6 +107,18 @@ def test_ack_marks_read_and_returns_count(note_type):
     assert items_repo.get_item(note_type, a["id"])["read_at"] is not None
 
 
+def test_set_read_toggles_single_item(note_type):
+    a = items_repo.submit(note_type, "note", {"text": "a"})
+    updated = items_repo.set_read(note_type, a["id"], True)
+    assert updated["read_at"] is not None
+    back = items_repo.set_read(note_type, a["id"], False)
+    assert back["read_at"] is None
+
+
+def test_set_read_missing_item_returns_none(note_type):
+    assert items_repo.set_read(note_type, "nope", True) is None
+
+
 def test_mark_unread_resets_read_at(note_type):
     a = items_repo.submit(note_type, "note", {"text": "a"})
     items_repo.ack(note_type, [a["id"]])

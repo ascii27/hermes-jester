@@ -40,34 +40,39 @@ python -m jester.admin register-type --name link --description "A link" --schema
 
 ## API
 
-All `/api/*` routes require `Authorization: Bearer <api_key>`.
+REST API. All `/api/*` routes require `Authorization: Bearer <api_key>`. The
+item **type is part of the path** (`/api/item/{type}`).
 
 | Method | Path | Scope | Purpose |
 |--------|------|-------|---------|
-| GET  | `/health` | — | liveness |
-| POST | `/api/types` | admin | register a type `{name, description, schema}` |
-| GET  | `/api/types` · `/api/types/{name}` | read | list / fetch types |
-| PUT  | `/api/types/{name}` | admin | update a type |
-| POST | `/api/items` | write | submit `{type, payload, metadata?}` |
-| GET  | `/api/submit` | write | submit via query params (`type`, JSON `payload`, JSON `metadata`) |
-| GET  | `/api/items` | read | poll: `?unread=true&type=&since=<iso>&limit=50` |
-| GET  | `/api/items/{id}` | read | fetch one item |
-| POST | `/api/items/ack` | read | mark read `{ids:[...]}` |
+| GET    | `/health` | — | liveness |
+| GET    | `/api/types` | read | list types |
+| POST   | `/api/types` | admin | create a type `{name, description, schema}` |
+| GET    | `/api/types/{type}` | read | fetch a type |
+| PUT    | `/api/types/{type}` | admin | update a type |
+| DELETE | `/api/types/{type}` | admin | delete a type (409 if items exist) |
+| POST   | `/api/item/{type}` | write | submit `{payload, metadata?}` |
+| GET    | `/api/submit/{type}` | write | submit via query params (JSON `payload`, `metadata`) |
+| GET    | `/api/items` | read | cross-type feed: `?unread=true&type=&since=<iso>&limit=50` |
+| GET    | `/api/item/{type}` | read | items of one type: `?unread=&since=&limit=` |
+| GET    | `/api/item/{type}/{id}` | read | fetch one item |
+| PATCH  | `/api/item/{type}/{id}` | read | mark read/unread `{"read": true}` |
+| DELETE | `/api/item/{type}/{id}` | admin | delete one item |
+| POST   | `/api/items/ack` | read | bulk mark read `{ids:[...]}` |
 
 Submitting an item:
 
 ```bash
-curl -X POST https://lectern-queenside.exe.xyz/api/items \
+curl -X POST https://lectern-queenside.exe.xyz/api/item/link \
   -H "Authorization: Bearer $WRITE_KEY" -H 'Content-Type: application/json' \
-  -d '{"type":"link","payload":{"url":"https://example.com"},"metadata":{"from":"reader"}}'
+  -d '{"payload":{"url":"https://example.com"},"metadata":{"from":"reader"}}'
 ```
 
 GET submission (for sources that can only issue GETs):
 
 ```bash
-curl -G https://lectern-queenside.exe.xyz/api/submit \
+curl -G https://lectern-queenside.exe.xyz/api/submit/link \
   -H "Authorization: Bearer $WRITE_KEY" \
-  --data-urlencode 'type=link' \
   --data-urlencode 'payload={"url":"https://example.com"}'
 ```
 
