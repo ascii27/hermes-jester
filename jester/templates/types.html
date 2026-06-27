@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Types</h1>
+
+<table class="grid">
+  <thead><tr><th>Name</th><th>Description</th><th>Updated</th><th></th></tr></thead>
+  <tbody>
+  {% for t in types %}
+    <tr>
+      <td><code>{{ t.name }}</code></td>
+      <td>{{ t.description }}</td>
+      <td class="muted">{{ t.updated_at }}</td>
+      <td><a href="/ui/types/{{ t.name }}/edit">Edit</a></td>
+    </tr>
+    <tr class="usage-row">
+      <td colspan="4">
+        <details class="usage">
+          <summary>Usage examples</summary>
+          <p class="muted">Submit an item (needs a <code>write</code> key):</p>
+          <pre>curl -X POST {{ base_url }}/api/item/{{ t.name }} \
+  -H "Authorization: Bearer $WRITE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{{ examples[t.name] }}'</pre>
+          <p class="muted">Poll new items of this type (needs a <code>read</code> key):</p>
+          <pre>curl {{ base_url }}/api/item/{{ t.name }} \
+  -H "Authorization: Bearer $READ_KEY"</pre>
+        </details>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4" class="muted">No types yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Register a type</h2>
+<form method="post" action="/ui/types" class="stack">
+  <label>Name <input name="name" value="{{ form.name if form else '' }}" required></label>
+  <label>Description <input name="description" value="{{ form.description if form else '' }}"></label>
+  <label>JSON Schema (payload)
+    <textarea name="schema" rows="12" required>{{ form.schema if form else '{\n  "type": "object",\n  "properties": {},\n  "required": []\n}' }}</textarea>
+  </label>
+  <button class="btn primary" type="submit">Register</button>
+</form>
+{% endblock %}

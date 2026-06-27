@@ -1,0 +1,23 @@
+# systemd unit for hermes-jester on an exe.dev VM.
+# Install to /etc/systemd/system/jester.service (or ~/.config/systemd/user/ for a
+# user service), then: systemctl enable --now jester
+#
+# Adjust User, WorkingDirectory, and the EnvironmentFile path to match your VM.
+# Port must match the VM's exe.dev proxy_port (lectern-queenside forwards to 8000;
+# check with `ssh exe.dev ls --json`).
+
+[Unit]
+Description=hermes-jester queue service
+After=network.target
+
+[Service]
+Type=simple
+User=exedev
+WorkingDirectory=/home/exedev/hermes-jester
+EnvironmentFile=/home/exedev/hermes-jester/.env
+ExecStart=/home/exedev/hermes-jester/.venv/bin/uvicorn jester.app:create_app --factory --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

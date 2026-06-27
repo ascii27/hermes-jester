@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit type <code>{{ type_def.name }}</code></h1>
+<form method="post" action="/ui/types/{{ type_def.name }}" class="stack">
+  <label>Description <input name="description" value="{{ type_def.description }}"></label>
+  <label>JSON Schema (payload)
+    <textarea name="schema" rows="16" required>{{ schema_text }}</textarea>
+  </label>
+  <div class="row">
+    <button class="btn primary" type="submit">Save</button>
+    <a class="btn" href="/ui/types">Cancel</a>
+  </div>
+</form>
+{% endblock %}

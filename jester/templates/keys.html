@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>API keys</h1>
+
+{% if new_token %}
+<div class="alert success">
+  <strong>New key “{{ new_token_name }}” created.</strong> Copy it now — it won't be shown again:
+  <pre class="token">{{ new_token }}</pre>
+</div>
+{% endif %}
+
+<table class="grid">
+  <thead><tr><th>Name</th><th>Scope</th><th>Created</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for k in keys %}
+    <tr>
+      <td>{{ k.name }}</td>
+      <td><span class="tag">{{ k.scope }}</span></td>
+      <td class="muted">{{ k.created_at }}</td>
+      <td>{% if k.revoked_at %}<span class="tag">revoked</span>{% else %}<span class="tag new">active</span>{% endif %}</td>
+      <td>
+        {% if not k.revoked_at %}
+        <form method="post" action="/ui/keys/{{ k.id }}/revoke" onsubmit="return confirm('Revoke this key?')"><button class="link danger">revoke</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">No keys yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Create a key</h2>
+<form method="post" action="/ui/keys" class="stack">
+  <label>Name <input name="name" placeholder="e.g. hermes-cron or acme-webhook" required></label>
+  <label>Scope
+    <select name="scope">
+      {% for s in scopes %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <button class="btn primary" type="submit">Create key</button>
+</form>
+<p class="muted">Scopes: <code>write</code> = submit items · <code>read</code> = poll/ack (hermes) · <code>admin</code> = manage types &amp; keys.</p>
+{% endblock %}
