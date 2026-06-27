@@ -12,12 +12,18 @@ In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 
 ## 2. Get the code onto the VM
 
+The VM has no GitHub credentials, so ship the committed branch directly from a
+local checkout instead of cloning:
+
 ```bash
-ssh lectern-queenside.exe.xyz                      # shell on the VM
-git clone <this-repo> hermes-jester && cd hermes-jester
-python3 -m venv .venv
-.venv/bin/pip install -e .
-cp deploy/env.example .env && $EDITOR .env         # fill in secrets
+# from your local repo, on the branch you want to deploy:
+git archive --format=tar <branch> | ssh lectern-queenside.exe.xyz 'mkdir -p ~/hermes-jester && tar -x -C ~/hermes-jester'
+ssh lectern-queenside.exe.xyz '
+  cd ~/hermes-jester
+  uv venv --python 3.12
+  uv pip install -e ".[dev]"
+  cp deploy/env.example .env    # then edit .env with secrets
+'
 ```
 
 Generate the session secret:
