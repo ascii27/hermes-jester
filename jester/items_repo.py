@@ -19,7 +19,6 @@ def _row_to_item(row: sqlite3.Row) -> dict:
         "id": row["id"],
         "type": row["type"],
         "payload": json.loads(row["payload"]),
-        "metadata": json.loads(row["metadata"]),
         "source": row["source"],
         "created_at": row["created_at"],
         "read_at": row["read_at"],
@@ -30,11 +29,10 @@ def submit(
     conn: sqlite3.Connection,
     type: str,
     payload: object,
-    metadata: dict | None = None,
     source: str = "",
 ) -> dict:
-    """Validate against the type's schema and enqueue. Raises if the type is unknown
-    or the payload doesn't match the schema."""
+    """Validate the posted body against the type's schema and enqueue. Raises if
+    the type is unknown or the body doesn't match the schema."""
     type_def = types_repo.get_type(conn, type)
     if type_def is None:
         raise NotFoundError(f"type {type!r} is not registered")
@@ -42,16 +40,9 @@ def submit(
 
     item_id = uuid.uuid4().hex
     conn.execute(
-        "INSERT INTO items (id, type, payload, metadata, source, created_at, read_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, NULL)",
-        (
-            item_id,
-            type,
-            json.dumps(payload),
-            json.dumps(metadata or {}),
-            source,
-            clock.now(),
-        ),
+        "INSERT INTO items (id, type, payload, source, created_at, read_at) "
+        "VALUES (?, ?, ?, ?, ?, NULL)",
+        (item_id, type, json.dumps(payload), source, clock.now()),
     )
     conn.commit()
     return get_item(conn, item_id)

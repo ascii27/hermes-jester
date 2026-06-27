@@ -14,6 +14,7 @@ from . import items_repo, keys_repo, types_repo
 from .auth_ui import require_user
 from .deps import get_conn
 from .errors import JesterError
+from .examples import example_payload
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
@@ -61,7 +62,14 @@ def types_page(
     conn: sqlite3.Connection = Depends(get_conn),
     _user: dict = Depends(require_user),
 ):
-    return render(request, "types.html", types=types_repo.list_types(conn))
+    base_url = request.app.state.settings.base_url.rstrip("/")
+    types = types_repo.list_types(conn)
+    examples = {
+        t["name"]: json.dumps(example_payload(t["schema"])) for t in types
+    }
+    return render(
+        request, "types.html", types=types, examples=examples, base_url=base_url
+    )
 
 
 @router.post("/ui/types")
@@ -174,7 +182,6 @@ def item_detail(
         "item_detail.html",
         item=item,
         payload_text=json.dumps(item["payload"], indent=2) if item else "",
-        metadata_text=json.dumps(item["metadata"], indent=2) if item else "",
     )
 
 

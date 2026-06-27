@@ -7,15 +7,15 @@ hermes's cron.
 
 from __future__ import annotations
 
-import json
 import sqlite3
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 
 from . import items_repo, types_repo
 from .auth_api import require_scope
 from .deps import get_conn
-from .models import AckRequest, ItemBody, ItemPatch, TypeCreate, TypeUpdate
+from .models import AckRequest, ItemPatch, TypeCreate, TypeUpdate
 
 router = APIRouter(prefix="/api")
 
@@ -79,39 +79,16 @@ def delete_type(
     return {"deleted": type}
 
 
-# --- submit (type in path) ---
+# --- submit (type in path; the request body IS the payload) ---
 
 @router.post("/item/{type}", status_code=201)
 def submit_item(
     type: str,
-    body: ItemBody,
+    payload: Any = Body(...),
     conn: sqlite3.Connection = Depends(get_conn),
     key: dict = Depends(require_scope("write")),
 ):
-    item = items_repo.submit(
-        conn, type, body.payload, metadata=body.metadata, source=key["name"]
-    )
-    return {"id": item["id"], "created_at": item["created_at"]}
-
-
-@router.get("/submit/{type}", status_code=201)
-def submit_item_get(
-    type: str,
-    conn: sqlite3.Connection = Depends(get_conn),
-    key: dict = Depends(require_scope("write")),
-    payload: str = Query(..., description="JSON-encoded payload"),
-    metadata: str | None = Query(default=None, description="JSON-encoded metadata"),
-):
-    """Submission for sources that can only issue GET requests. `payload` and
-    `metadata` are JSON-encoded query params."""
-    try:
-        payload_obj = json.loads(payload)
-        metadata_obj = json.loads(metadata) if metadata else {}
-    except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=400, detail=f"invalid JSON: {exc}") from exc
-    item = items_repo.submit(
-        conn, type, payload_obj, metadata=metadata_obj, source=key["name"]
-    )
+    item = items_repo.submit(conn, type, payload, source=key["name"])
     return {"id": item["id"], "created_at": item["created_at"]}
 
 

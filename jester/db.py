@@ -22,8 +22,7 @@ CREATE TABLE IF NOT EXISTS types (
 CREATE TABLE IF NOT EXISTS items (
     id          TEXT PRIMARY KEY,
     type        TEXT NOT NULL REFERENCES types(name),
-    payload     TEXT NOT NULL,            -- JSON document (validated against type schema)
-    metadata    TEXT NOT NULL DEFAULT '{}',  -- free-form JSON supplied by the sender
+    payload     TEXT NOT NULL,            -- the posted JSON body (validated against type schema)
     source      TEXT NOT NULL DEFAULT '',    -- name of the API key that submitted it
     created_at  TEXT NOT NULL,
     read_at     TEXT                          -- NULL until acked
@@ -60,4 +59,17 @@ def connect(db_path: str) -> sqlite3.Connection:
 def init_db(conn: sqlite3.Connection) -> None:
     """Create tables and indexes if they don't exist. Safe to call repeatedly."""
     conn.executescript(SCHEMA)
+    _migrate(conn)
     conn.commit()
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Converge an existing database to the current schema."""
+    # Legacy installs had an items.metadata column; drop it (the envelope idea
+    # was removed — the posted body is the payload).
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(items)")}
+    if "metadata" in cols:
+        try:
+            conn.execute("ALTER TABLE items DROP COLUMN metadata")
+        except sqlite3.OperationalError:
+            pass  # older SQLite without DROP COLUMN: leave the unused column

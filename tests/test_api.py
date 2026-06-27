@@ -1,4 +1,3 @@
-import json
 from types import SimpleNamespace
 
 import pytest
@@ -66,9 +65,7 @@ def test_revoked_token_is_401(env, tmp_path):
     keys_repo.revoke_key(c, write_id)
     c.close()
     _register_note(env)
-    r = env.client.post(
-        "/api/item/note", headers=hdr(env.write), json={"payload": {"text": "x"}}
-    )
+    r = env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "x"})
     assert r.status_code == 401
 
 
@@ -114,60 +111,39 @@ def test_delete_type(env):
 
 def test_delete_type_with_items_is_409(env):
     _register_note(env)
-    env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": "a"}})
+    env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "a"})
     r = env.client.delete("/api/types/note", headers=hdr(env.admin))
     assert r.status_code == 409
 
 
-# --- submit (type in path) ---
+# --- submit (type in path; body is the payload) ---
 
 def test_submit_valid_item(env):
     _register_note(env)
-    r = env.client.post(
-        "/api/item/note",
-        headers=hdr(env.write),
-        json={"payload": {"text": "hi"}, "metadata": {"k": "v"}},
-    )
+    r = env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "hi"})
     assert r.status_code == 201, r.text
     assert r.json()["id"] and r.json()["created_at"]
+    # the stored item's payload is exactly the posted body
+    feed = env.client.get("/api/items", headers=hdr(env.read)).json()
+    assert feed[0]["payload"] == {"text": "hi"}
 
 
 def test_submit_invalid_payload_is_422(env):
     _register_note(env)
-    r = env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"nope": 1}})
+    r = env.client.post("/api/item/note", headers=hdr(env.write), json={"nope": 1})
     assert r.status_code == 422
 
 
 def test_submit_unknown_type_is_404(env):
-    r = env.client.post("/api/item/ghost", headers=hdr(env.write), json={"payload": {}})
+    r = env.client.post("/api/item/ghost", headers=hdr(env.write), json={"x": 1})
     assert r.status_code == 404
-
-
-def test_get_submit_via_query_params(env):
-    _register_note(env)
-    r = env.client.get(
-        "/api/submit/note",
-        headers=hdr(env.write),
-        params={"payload": json.dumps({"text": "from-get"})},
-    )
-    assert r.status_code == 201, r.text
-    items = env.client.get("/api/items", headers=hdr(env.read)).json()
-    assert any(i["payload"] == {"text": "from-get"} for i in items)
-
-
-def test_get_submit_bad_json_is_400(env):
-    _register_note(env)
-    r = env.client.get(
-        "/api/submit/note", headers=hdr(env.write), params={"payload": "{not json"}
-    )
-    assert r.status_code == 400
 
 
 # --- consume ---
 
 def test_list_items_by_type(env):
     _register_note(env)
-    env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": "a"}})
+    env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "a"})
     r = env.client.get("/api/item/note", headers=hdr(env.read))
     assert r.status_code == 200
     assert len(r.json()) == 1
@@ -180,8 +156,8 @@ def test_list_items_unknown_type_is_404(env):
 def test_cross_type_feed(env):
     _register_note(env)
     env.client.post("/api/types", headers=hdr(env.admin), json={"name": "link", "schema": {"type": "object"}})
-    env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": "a"}})
-    env.client.post("/api/item/link", headers=hdr(env.write), json={"payload": {"url": "x"}})
+    env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "a"})
+    env.client.post("/api/item/link", headers=hdr(env.write), json={"url": "x"})
     feed = env.client.get("/api/items", headers=hdr(env.read)).json()
     assert len(feed) == 2
     only_note = env.client.get("/api/items", headers=hdr(env.read), params={"type": "note"}).json()
@@ -190,7 +166,7 @@ def test_cross_type_feed(env):
 
 def test_get_single_item(env):
     _register_note(env)
-    sid = env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": "a"}}).json()["id"]
+    sid = env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "a"}).json()["id"]
     r = env.client.get(f"/api/item/note/{sid}", headers=hdr(env.read))
     assert r.status_code == 200
     assert r.json()["id"] == sid
@@ -198,7 +174,7 @@ def test_get_single_item(env):
 
 def test_patch_marks_read_and_unread(env):
     _register_note(env)
-    sid = env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": "a"}}).json()["id"]
+    sid = env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "a"}).json()["id"]
     r = env.client.patch(f"/api/item/note/{sid}", headers=hdr(env.read), json={"read": True})
     assert r.status_code == 200
     assert r.json()["read_at"] is not None
@@ -216,7 +192,7 @@ def test_patch_unknown_item_is_404(env):
 def test_bulk_ack(env):
     _register_note(env)
     ids = [
-        env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": str(n)}}).json()["id"]
+        env.client.post("/api/item/note", headers=hdr(env.write), json={"text": str(n)}).json()["id"]
         for n in range(2)
     ]
     r = env.client.post("/api/items/ack", headers=hdr(env.read), json={"ids": ids})
@@ -226,7 +202,7 @@ def test_bulk_ack(env):
 
 def test_delete_item(env):
     _register_note(env)
-    sid = env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": "a"}}).json()["id"]
+    sid = env.client.post("/api/item/note", headers=hdr(env.write), json={"text": "a"}).json()["id"]
     r = env.client.delete(f"/api/item/note/{sid}", headers=hdr(env.admin))
     assert r.status_code == 200
     assert env.client.get(f"/api/item/note/{sid}", headers=hdr(env.read)).status_code == 404
@@ -235,5 +211,5 @@ def test_delete_item(env):
 def test_poll_limit(env):
     _register_note(env)
     for n in range(3):
-        env.client.post("/api/item/note", headers=hdr(env.write), json={"payload": {"text": str(n)}})
+        env.client.post("/api/item/note", headers=hdr(env.write), json={"text": str(n)})
     assert len(env.client.get("/api/items", headers=hdr(env.read), params={"limit": 2}).json()) == 2

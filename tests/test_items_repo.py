@@ -36,13 +36,11 @@ def fixed_clock(monkeypatch):
 
 
 def test_submit_stores_item(note_type):
-    item = items_repo.submit(
-        note_type, "note", {"text": "hello"}, metadata={"src": "cli"}, source="key-a"
-    )
+    item = items_repo.submit(note_type, "note", {"text": "hello"}, source="key-a")
     assert item["id"]
     assert item["type"] == "note"
     assert item["payload"] == {"text": "hello"}
-    assert item["metadata"] == {"src": "cli"}
+    assert "metadata" not in item
     assert item["source"] == "key-a"
     assert item["read_at"] is None
 

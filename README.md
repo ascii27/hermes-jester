@@ -14,8 +14,8 @@ Google-authenticated web UI manages types, the queue, and API keys.
 
 - **Type** — a named category of data with a JSON Schema. Item payloads are
   validated against it on submit and rejected (422) if they don't match.
-- **Item** — an envelope: a validated `payload` (the data), free-form `metadata`
-  (sender context), plus system fields (`id`, `type`, `source`, `created_at`, `read_at`).
+- **Item** — the posted JSON body (validated against the type's schema), plus
+  system fields (`id`, `type`, `source`, `created_at`, `read_at`).
 - **API key scopes** — `write` (submit), `read` (poll/ack, for hermes),
   `admin` (manage types & keys; implies the others).
 
@@ -51,8 +51,7 @@ item **type is part of the path** (`/api/item/{type}`).
 | GET    | `/api/types/{type}` | read | fetch a type |
 | PUT    | `/api/types/{type}` | admin | update a type |
 | DELETE | `/api/types/{type}` | admin | delete a type (409 if items exist) |
-| POST   | `/api/item/{type}` | write | submit `{payload, metadata?}` |
-| GET    | `/api/submit/{type}` | write | submit via query params (JSON `payload`, `metadata`) |
+| POST   | `/api/item/{type}` | write | submit an item — the request body **is** the payload |
 | GET    | `/api/items` | read | cross-type feed: `?unread=true&type=&since=<iso>&limit=50` |
 | GET    | `/api/item/{type}` | read | items of one type: `?unread=&since=&limit=` |
 | GET    | `/api/item/{type}/{id}` | read | fetch one item |
@@ -60,21 +59,17 @@ item **type is part of the path** (`/api/item/{type}`).
 | DELETE | `/api/item/{type}/{id}` | admin | delete one item |
 | POST   | `/api/items/ack` | read | bulk mark read `{ids:[...]}` |
 
-Submitting an item:
+Submitting an item — the request body is the payload, validated against the
+type's JSON Schema:
 
 ```bash
 curl -X POST https://lectern-queenside.exe.xyz/api/item/link \
   -H "Authorization: Bearer $WRITE_KEY" -H 'Content-Type: application/json' \
-  -d '{"payload":{"url":"https://example.com"},"metadata":{"from":"reader"}}'
+  -d '{"url":"https://example.com"}'
 ```
 
-GET submission (for sources that can only issue GETs):
-
-```bash
-curl -G https://lectern-queenside.exe.xyz/api/submit/link \
-  -H "Authorization: Bearer $WRITE_KEY" \
-  --data-urlencode 'payload={"url":"https://example.com"}'
-```
+The management UI shows ready-to-run examples for each registered type under
+**Types → Usage examples**.
 
 ## hermes cron loop
 

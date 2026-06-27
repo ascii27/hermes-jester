@@ -78,6 +78,11 @@ dl.meta dd { margin: 0; }
 .pill-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .pill-list li { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
 
+.usage-row td { background: rgba(110,168,254,0.03); padding-top: 0; }
+.usage summary { cursor: pointer; color: var(--accent); font-size: 13px; padding: 4px 0; }
+.usage p { margin: 10px 0 4px; font-size: 13px; }
+.usage pre { margin: 0 0 6px; font-size: 12.5px; }
+
 .landing { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
   background: radial-gradient(1200px 600px at 50% -10%, rgba(110,168,254,0.10), transparent 60%); }
 .landing-card { max-width: 420px; width: 100%; text-align: center; background: var(--panel);
