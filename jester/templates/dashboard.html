@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="cards">
+  <div class="card"><div class="num">{{ counts.total }}</div><div class="lbl">Items</div></div>
+  <div class="card"><div class="num">{{ counts.unread }}</div><div class="lbl">Unread</div></div>
+  <div class="card"><div class="num">{{ types|length }}</div><div class="lbl">Types</div></div>
+  <div class="card"><div class="num">{{ key_count }}</div><div class="lbl">API keys</div></div>
+</div>
+
+<h2>Registered types</h2>
+{% if types %}
+<ul class="pill-list">
+  {% for t in types %}<li><a href="/ui/types">{{ t.name }}</a></li>{% endfor %}
+</ul>
+{% else %}
+<p class="muted">No types registered yet. <a href="/ui/types">Register one</a>.</p>
+{% endif %}
+{% endblock %}

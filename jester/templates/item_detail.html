@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+{% if not item %}
+<p class="muted">Item not found. <a href="/ui/items">Back to items</a></p>
+{% else %}
+<h1>Item</h1>
+<a href="/ui/items">&larr; Back</a>
+<dl class="meta">
+  <dt>ID</dt><dd><code>{{ item.id }}</code></dd>
+  <dt>Type</dt><dd><code>{{ item.type }}</code></dd>
+  <dt>Source</dt><dd>{{ item.source }}</dd>
+  <dt>Created</dt><dd>{{ item.created_at }}</dd>
+  <dt>Read</dt><dd>{{ item.read_at or 'unread' }}</dd>
+</dl>
+
+<h2>Payload</h2>
+<pre>{{ payload_text }}</pre>
+<h2>Metadata</h2>
+<pre>{{ metadata_text }}</pre>
+
+<div class="row">
+  {% if item.read_at %}
+  <form method="post" action="/ui/items/{{ item.id }}/unread"><button class="btn">Mark unread</button></form>
+  {% else %}
+  <form method="post" action="/ui/items/{{ item.id }}/ack"><button class="btn primary">Ack (mark read)</button></form>
+  {% endif %}
+  <form method="post" action="/ui/items/{{ item.id }}/delete" onsubmit="return confirm('Delete item?')"><button class="btn danger">Delete</button></form>
+</div>
+{% endif %}
+{% endblock %}

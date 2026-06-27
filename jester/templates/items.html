@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Items</h1>
+
+<form method="get" action="/ui/items" class="filters">
+  <label>Type
+    <select name="type">
+      <option value="">All</option>
+      {% for t in types %}
+      <option value="{{ t.name }}" {% if t.name == selected_type %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>State
+    <select name="state">
+      <option value="all" {% if state == 'all' %}selected{% endif %}>All</option>
+      <option value="unread" {% if state == 'unread' %}selected{% endif %}>Unread only</option>
+    </select>
+  </label>
+  <button class="btn" type="submit">Filter</button>
+</form>
+
+<table class="grid">
+  <thead><tr><th>Created</th><th>Type</th><th>Source</th><th>Status</th><th>Preview</th><th></th></tr></thead>
+  <tbody>
+  {% for i in items %}
+    <tr class="{{ 'read' if i.read_at else 'unread' }}">
+      <td class="muted">{{ i.created_at }}</td>
+      <td><code>{{ i.type }}</code></td>
+      <td>{{ i.source }}</td>
+      <td>{% if i.read_at %}<span class="tag">read</span>{% else %}<span class="tag new">unread</span>{% endif %}</td>
+      <td class="preview">{{ i.payload | tojson }}</td>
+      <td class="actions">
+        <a href="/ui/items/{{ i.id }}">View</a>
+        {% if i.read_at %}
+        <form method="post" action="/ui/items/{{ i.id }}/unread"><button class="link">unread</button></form>
+        {% else %}
+        <form method="post" action="/ui/items/{{ i.id }}/ack"><button class="link">ack</button></form>
+        {% endif %}
+        <form method="post" action="/ui/items/{{ i.id }}/delete" onsubmit="return confirm('Delete item?')"><button class="link danger">delete</button></form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="muted">No items.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
