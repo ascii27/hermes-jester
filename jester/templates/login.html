@@ -1,8 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="login">
-  <h1>hermes-jester</h1>
-  <p>Management console</p>
-  <a class="btn primary" href="/auth/login">Sign in with Google</a>
+<div class="landing">
+  <div class="landing-card">
+    <div class="logo">🃏</div>
+    <h1>hermes-jester</h1>
+    <p class="tagline">An authenticated inbox &amp; queue for hermes.</p>
+    <p class="blurb">
+      Other apps push schema-validated items here; hermes drains the queue on a
+      cron, reads only what's new, and acks what it handled.
+    </p>
+    <a class="btn primary signin" href="/auth/login">
+      <span class="g">G</span> Sign in with Google
+    </a>
+    <p class="fineprint">Access is limited to authorized accounts.</p>
+  </div>
 </div>
 {% endblock %}

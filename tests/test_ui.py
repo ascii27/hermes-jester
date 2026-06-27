@@ -46,19 +46,21 @@ def test_resolve_login_is_case_insensitive(settings):
 
 # --- auth gate ---
 
-def test_unauthenticated_ui_redirects_to_login(app):
+def test_unauthenticated_ui_redirects_to_landing(app):
     client = TestClient(app, follow_redirects=False)
     r = client.get("/")
     assert r.status_code in (302, 303, 307)
-    assert "/auth/login" in r.headers["location"]
+    # unauthenticated users land on the public landing page, not straight at Google
+    assert r.headers["location"] == "/login"
 
 
-def test_login_page_renders(app):
+def test_landing_page_renders_with_signin(app):
     client = TestClient(app)
-    r = client.get("/auth/login-page" if False else "/login")
-    # /login renders the "Sign in with Google" page without auth
+    r = client.get("/login")
+    # the landing page renders without auth and offers Google sign-in
     assert r.status_code == 200
     assert "Google" in r.text
+    assert "/auth/login" in r.text
 
 
 # --- authenticated pages (require_user overridden) ---

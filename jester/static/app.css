@@ -78,6 +78,15 @@ dl.meta dd { margin: 0; }
 .pill-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .pill-list li { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
 
-.login { max-width: 360px; margin: 12vh auto; text-align: center; }
-.login h1 { font-size: 28px; }
-.login p { color: var(--muted); margin-bottom: 24px; }
+.landing { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: radial-gradient(1200px 600px at 50% -10%, rgba(110,168,254,0.10), transparent 60%); }
+.landing-card { max-width: 420px; width: 100%; text-align: center; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 16px; padding: 40px 32px; }
+.landing-card .logo { font-size: 44px; line-height: 1; margin-bottom: 12px; }
+.landing-card h1 { font-size: 30px; margin: 0 0 6px; }
+.landing-card .tagline { color: var(--text); font-size: 16px; margin: 0 0 14px; }
+.landing-card .blurb { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+.btn.signin { display: inline-flex; align-items: center; gap: 10px; padding: 11px 20px; font-size: 15px; }
+.btn.signin .g { display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; background: #fff; color: #4285f4; font-weight: 800; font-size: 13px; }
+.landing-card .fineprint { color: var(--muted); font-size: 12px; margin: 18px 0 0; }

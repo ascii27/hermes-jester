@@ -39,7 +39,7 @@ def require_user(request: Request) -> dict:
     """UI auth gate: require a logged-in, allowlisted user or redirect to login."""
     user = request.session.get("user")
     if not user:
-        raise HTTPException(status_code=303, headers={"Location": "/auth/login"})
+        raise HTTPException(status_code=303, headers={"Location": "/login"})
     return user
 
 
