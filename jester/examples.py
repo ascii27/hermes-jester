@@ -22,13 +22,8 @@ def example_payload(schema: dict) -> Any:
 
     if t == "object" or "properties" in schema:
         props = schema.get("properties", {})
-        required = schema.get("required")
-        out = {}
-        for key, sub in props.items():
-            # include required fields; if none are marked required, include all
-            if required is None or key in required:
-                out[key] = example_payload(sub)
-        return out
+        # include every declared property (required and optional)
+        return {key: example_payload(sub) for key, sub in props.items()}
     if t == "array":
         item_schema = schema.get("items")
         return [example_payload(item_schema)] if item_schema else []

@@ -1,15 +1,15 @@
 from jester.examples import example_payload
 
 
-def test_object_with_required_fields():
+def test_includes_required_and_optional_fields():
     schema = {
         "type": "object",
         "properties": {"text": {"type": "string"}, "n": {"type": "integer"}},
         "required": ["text"],
     }
-    # required field present with a typed placeholder
+    # both required and optional fields appear with typed placeholders
     ex = example_payload(schema)
-    assert ex["text"] == "string"
+    assert ex == {"text": "string", "n": 0}
 
 
 def test_uses_explicit_example_when_present():
