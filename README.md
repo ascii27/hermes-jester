@@ -46,6 +46,7 @@ item **type is part of the path** (`/api/item/{type}`).
 | Method | Path | Scope | Purpose |
 |--------|------|-------|---------|
 | GET    | `/health` | — | liveness |
+| GET    | `/api/discover` | read | self-describing manifest of all types + how to consume them |
 | GET    | `/api/types` | read | list types |
 | POST   | `/api/types` | admin | create a type `{name, description, schema}` |
 | GET    | `/api/types/{type}` | read | fetch a type |
@@ -73,7 +74,9 @@ The management UI shows ready-to-run examples for each registered type under
 
 ## hermes cron loop
 
-Give hermes a `read`-scoped key. On each cron tick it drains the new items:
+Give hermes a `read`-scoped key. It can call `GET /api/discover` once to learn
+every registered type — what each is for, the content schema (with an example),
+and the exact URLs to fetch them — then on each cron tick it drains the new items:
 
 ```bash
 BASE=https://lectern-queenside.exe.xyz
