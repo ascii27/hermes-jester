@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;outline:none;}
+::selection{background:rgba(79,124,255,0.3);}
+@keyframes hjFade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes hjPop{from{opacity:0;transform:scale(0.97);}to{opacity:1;transform:scale(1);}}
+@keyframes hjPulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+@keyframes hjToast{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.hj-scroll::-webkit-scrollbar{width:10px;height:10px;}
+.hj-scroll::-webkit-scrollbar-thumb{background:var(--border2,rgba(255,255,255,0.15));border-radius:6px;}
+.hj-scroll::-webkit-scrollbar-track{background:transparent;}
+</style>
+</helmet>
+<div class="hj-scroll" style="{{ rootStyle }}">
+
+  <!-- ===================== LOGIN ===================== -->
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;background:radial-gradient(120% 90% at 50% -10%, var(--surface2,#1b1b22) 0%, var(--bg,#0d0d0f) 60%);">
+      <div style="position:absolute;top:20px;right:20px;">
+        <div style="display:flex;gap:4px;background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:999px;padding:4px;">
+          <sc-for list="{{ themeOptions }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.onClick }}" style="{{ t.pillStyle }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="width:420px;max-width:100%;background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:calc(var(--radius,8px) + 4px);padding:40px 36px;box-shadow:0 24px 60px rgba(0,0,0,0.4);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <div style="width:46px;height:46px;border-radius:var(--radius,8px);background:var(--accentSoft,rgba(79,124,255,0.15));border:1px solid var(--accentBorder,rgba(79,124,255,0.4));display:flex;align-items:center;justify-content:center;font-size:24px;">🃏</div>
+          <div>
+            <div style="font:700 19px var(--fontUi);color:var(--text,#e9e9ec);letter-spacing:-0.01em;">hermes-jester</div>
+            <div style="font:500 12px var(--fontMono);color:var(--text3,#646470);">authenticated inbox &amp; queue</div>
+          </div>
+        </div>
+        <p style="font:400 14px/1.5 var(--fontUi);color:var(--text2,#9b9ba4);margin:22px 0 4px;">An authenticated inbox &amp; queue for <span style="color:var(--text,#e9e9ec);font-weight:600;">hermes</span>.</p>
+        <p style="font:400 13px/1.55 var(--fontUi);color:var(--text3,#646470);margin:0 0 28px;">Producers push typed, schema-validated items in. hermes drains the queue on a schedule and acks what it handles — never twice.</p>
+        <button onClick="{{ login }}" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--accent,#4f7cff);color:var(--accentText,#fff);border:none;border-radius:var(--radius,8px);padding:13px;font:600 14px var(--fontUi);cursor:pointer;transition:filter 0.15s;" style-hover="filter:brightness(1.08)">
+          <span style="width:20px;height:20px;border-radius:50%;background:#fff;color:#444;display:flex;align-items:center;justify-content:center;font:700 13px var(--fontUi);">G</span>
+          Sign in with Google
+        </button>
+        <p style="font:400 12px var(--fontMono);color:var(--text3,#646470);margin:18px 0 0;text-align:center;">Access is limited to authorized accounts.</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== APP ===================== -->
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:100vh;display:flex;flex-direction:column;">
+
+      <!-- TOP BAR -->
+      <header style="display:flex;align-items:center;gap:18px;padding:0 22px;height:56px;border-bottom:1px solid var(--border,rgba(255,255,255,0.09));background:var(--surface,#15151a);position:sticky;top:0;z-index:20;">
+        <button onClick="{{ goDashboard }}" style="display:flex;align-items:center;gap:9px;background:none;border:none;cursor:pointer;padding:0;">
+          <span style="font-size:19px;">🃏</span>
+          <span style="font:700 15px var(--fontUi);color:var(--text,#e9e9ec);letter-spacing:-0.01em;">hermes-jester</span>
+        </button>
+        <nav style="display:flex;gap:2px;margin-left:8px;">
+          <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+            <button onClick="{{ n.onClick }}" style="{{ n.style }}">
+              {{ n.label }}
+              <sc-if value="{{ n.showBadge }}"><span style="{{ n.badgeStyle }}">{{ n.badge }}</span></sc-if>
+            </button>
+          </sc-for>
+        </nav>
+        <div style="flex:1;"></div>
+        <div style="display:flex;gap:3px;background:var(--surface2,#1b1b22);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:999px;padding:3px;">
+          <sc-for list="{{ themeOptions }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.onClick }}" title="{{ t.label }}" style="{{ t.dotStyle }}"></button>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font:500 13px var(--fontMono);color:var(--text2,#9b9ba4);">owner@acme.co</span>
+          <button onClick="{{ logout }}" style="background:transparent;color:var(--text2,#9b9ba4);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:7px 13px;font:500 12px var(--fontUi);cursor:pointer;" style-hover="border-color:var(--border2,rgba(255,255,255,0.2));color:var(--text,#e9e9ec)">Sign out</button>
+        </div>
+      </header>
+
+      <!-- BANNER -->
+      <sc-if value="{{ banner }}">
+        <div style="max-width:1180px;width:100%;margin:0 auto;padding:14px 28px 0;">
+          <div style="{{ bannerStyle }}">
+            <span style="font-size:15px;">{{ banner.icon }}</span>
+            <span style="flex:1;font:500 13px var(--fontUi);">{{ banner.msg }}</span>
+            <button onClick="{{ closeBanner }}" style="background:none;border:none;color:inherit;cursor:pointer;font-size:16px;opacity:0.6;line-height:1;">×</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <main style="flex:1;max-width:1180px;width:100%;margin:0 auto;padding:28px;">
+
+        <!-- ---------- DASHBOARD ---------- -->
+        <sc-if value="{{ isDashboard }}">
+          <div data-screen-label="Dashboard">
+            <div style="margin-bottom:22px;">
+              <h1 style="font:700 24px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 4px;letter-spacing:-0.02em;">Overview</h1>
+              <p style="font:400 14px var(--fontUi);color:var(--text3,#646470);margin:0;">Queue health at a glance.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;">
+              <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+                <button onClick="{{ s.onClick }}" style="{{ s.cardStyle }}">
+                  <div style="font:600 11px var(--fontMono);letter-spacing:0.08em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:10px;">{{ s.label }}</div>
+                  <div style="font:600 34px var(--fontMono);color:{{ s.color }};line-height:1;letter-spacing:-0.02em;">{{ s.value }}</div>
+                  <div style="font:400 12px var(--fontUi);color:var(--text3,#646470);margin-top:8px;">{{ s.sub }}</div>
+                </button>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start;">
+              <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border,rgba(255,255,255,0.09));">
+                  <span style="font:600 13px var(--fontUi);color:var(--text,#e9e9ec);">Recent activity</span>
+                  <button onClick="{{ goItems }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 12px var(--fontUi);cursor:pointer;">View all →</button>
+                </div>
+                <sc-for list="{{ recent }}" as="r" hint-placeholder-count="6">
+                  <button onClick="{{ r.onView }}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 18px;background:none;border:none;border-bottom:1px solid var(--border,rgba(255,255,255,0.06));cursor:pointer;" style-hover="background:var(--surface2,#1b1b22)">
+                    <span style="{{ r.dotStyle }}"></span>
+                    <span style="{{ r.typeChip }}">{{ r.type }}</span>
+                    <span style="flex:1;font:400 13px var(--fontMono);color:var(--text2,#9b9ba4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.preview }}</span>
+                    <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);white-space:nowrap;">{{ r.ago }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                  <span style="font:600 13px var(--fontUi);color:var(--text,#e9e9ec);">Registered types</span>
+                  <button onClick="{{ goTypes }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 12px var(--fontUi);cursor:pointer;">Manage →</button>
+                </div>
+                <sc-if value="{{ hasTypes }}">
+                  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <sc-for list="{{ typePills }}" as="p" hint-placeholder-count="5">
+                      <button onClick="{{ p.onClick }}" style="font:500 12px var(--fontMono);color:var(--text2,#9b9ba4);background:var(--surface2,#1b1b22);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:999px;padding:5px 12px;cursor:pointer;" style-hover="border-color:var(--accentBorder,rgba(79,124,255,0.4));color:var(--text,#e9e9ec)">{{ p.name }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ noTypes }}">
+                  <p style="font:400 13px var(--fontUi);color:var(--text3,#646470);margin:0;">No types yet. <button onClick="{{ goTypes }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 13px var(--fontUi);cursor:pointer;padding:0;">Register one →</button></p>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ---------- ITEMS ---------- -->
+        <sc-if value="{{ isItems }}">
+          <div data-screen-label="Items">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;">
+              <div>
+                <h1 style="font:700 24px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 4px;letter-spacing:-0.02em;">Items <span style="font:600 14px var(--fontMono);color:var(--text3,#646470);">· {{ filteredCount }}</span></h1>
+                <p style="font:400 14px var(--fontUi);color:var(--text3,#646470);margin:0;">Browse and triage the queue.</p>
+              </div>
+              <div style="display:flex;gap:3px;background:var(--surface2,#1b1b22);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:3px;">
+                <sc-for list="{{ viewOptions }}" as="v" hint-placeholder-count="3">
+                  <button onClick="{{ v.onClick }}" style="{{ v.style }}">{{ v.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+              <select value="{{ filterType }}" onChange="{{ onFilterType }}" style="background:var(--surface,#15151a);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:8px 12px;font:500 13px var(--fontUi);cursor:pointer;">
+                <option value="all">All types</option>
+                <sc-for list="{{ typeNames }}" as="tn" hint-placeholder-count="5">
+                  <option value="{{ tn }}">{{ tn }}</option>
+                </sc-for>
+              </select>
+              <div style="display:flex;gap:2px;background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:3px;">
+                <button onClick="{{ onFilterAll }}" style="{{ stateAllStyle }}">All</button>
+                <button onClick="{{ onFilterUnread }}" style="{{ stateUnreadStyle }}">Unread only</button>
+              </div>
+              <div style="flex:1;"></div>
+              <span style="font:500 12px var(--fontMono);color:var(--text3,#646470);">{{ unreadCount }} unread</span>
+            </div>
+
+            <!-- Bulk bar -->
+            <sc-if value="{{ hasSelection }}">
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;margin-bottom:14px;background:var(--accentSoft,rgba(79,124,255,0.15));border:1px solid var(--accentBorder,rgba(79,124,255,0.4));border-radius:var(--radius,8px);">
+                <span style="font:600 13px var(--fontUi);color:var(--text,#e9e9ec);">{{ selectionCount }} selected</span>
+                <button onClick="{{ bulkAck }}" style="background:var(--accent,#4f7cff);color:var(--accentText,#fff);border:none;border-radius:6px;padding:7px 13px;font:600 12px var(--fontUi);cursor:pointer;">Ack selected</button>
+                <button onClick="{{ bulkDelete }}" style="background:transparent;color:var(--red,#f15c43);border:1px solid var(--redSoft,rgba(241,92,67,0.4));border-radius:6px;padding:7px 13px;font:600 12px var(--fontUi);cursor:pointer;">Delete selected</button>
+                <div style="flex:1;"></div>
+                <button onClick="{{ clearSelection }}" style="background:none;border:none;color:var(--text2,#9b9ba4);font:500 12px var(--fontUi);cursor:pointer;">Clear</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isEmpty }}">
+              <div style="text-align:center;padding:70px 20px;background:var(--surface,#15151a);border:1px dashed var(--border2,rgba(255,255,255,0.15));border-radius:var(--radius,8px);">
+                <div style="font-size:34px;margin-bottom:10px;opacity:0.5;">🗒️</div>
+                <p style="font:500 15px var(--fontUi);color:var(--text2,#9b9ba4);margin:0;">No items.</p>
+              </div>
+            </sc-if>
+
+            <!-- TABLE VIEW -->
+            <sc-if value="{{ showTable }}">
+              <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;">
+                <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+                  <thead>
+                    <tr style="border-bottom:1px solid var(--border,rgba(255,255,255,0.09));">
+                      <th style="width:38px;padding:11px 0 11px 16px;"><input type="checkbox" checked="{{ allSelected }}" onChange="{{ toggleSelectAll }}" style="accent-color:var(--accent,#4f7cff);width:15px;height:15px;cursor:pointer;"></th>
+                      <th style="width:92px;text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Created</th>
+                      <th style="width:140px;text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Type</th>
+                      <th style="width:120px;text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Source</th>
+                      <th style="width:92px;text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Status</th>
+                      <th style="text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Preview</th>
+                      <th style="width:150px;padding:11px 16px 11px 8px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{ rows }}" as="it" hint-placeholder-count="8">
+                      <tr style="{{ it.rowStyle }}">
+                        <td style="padding:0 0 0 16px;border-left:{{ it.accentBar }};"><input type="checkbox" checked="{{ it.selected }}" onChange="{{ it.onToggle }}" style="accent-color:var(--accent,#4f7cff);width:15px;height:15px;cursor:pointer;"></td>
+                        <td style="padding:13px 8px;font:400 12px var(--fontMono);color:var(--text3,#646470);">{{ it.ago }}</td>
+                        <td style="padding:13px 8px;"><span style="{{ it.typeChip }}">{{ it.type }}</span></td>
+                        <td style="padding:13px 8px;font:500 12px var(--fontMono);color:var(--text2,#9b9ba4);">{{ it.source }}</td>
+                        <td style="padding:13px 8px;"><span style="{{ it.statusChip }}">{{ it.status }}</span></td>
+                        <td style="padding:13px 8px;font:400 12px var(--fontMono);color:var(--text2,#9b9ba4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0;">{{ it.preview }}</td>
+                        <td style="padding:13px 16px 13px 8px;text-align:right;white-space:nowrap;">
+                          <button onClick="{{ it.onView }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 12px var(--fontUi);cursor:pointer;padding:4px 6px;">View</button>
+                          <button onClick="{{ it.onToggleRead }}" style="background:none;border:none;color:var(--text2,#9b9ba4);font:600 12px var(--fontUi);cursor:pointer;padding:4px 6px;">{{ it.toggleLabel }}</button>
+                          <button onClick="{{ it.onDelete }}" style="background:none;border:none;color:var(--text3,#646470);font:600 12px var(--fontUi);cursor:pointer;padding:4px 6px;" style-hover="color:var(--red,#f15c43)">del</button>
+                        </td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </sc-if>
+
+            <!-- COMPACT VIEW -->
+            <sc-if value="{{ showCompact }}">
+              <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;">
+                <sc-for list="{{ rows }}" as="it" hint-placeholder-count="8">
+                  <div style="{{ it.compactStyle }}">
+                    <input type="checkbox" checked="{{ it.selected }}" onChange="{{ it.onToggle }}" style="accent-color:var(--accent,#4f7cff);width:15px;height:15px;cursor:pointer;flex:none;">
+                    <span style="{{ it.dotStyle }}"></span>
+                    <span style="{{ it.typeChip }}">{{ it.type }}</span>
+                    <span style="font:500 12px var(--fontMono);color:var(--text2,#9b9ba4);flex:none;width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ it.source }}</span>
+                    <span style="flex:1;font:400 12px var(--fontMono);color:var(--text2,#9b9ba4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ it.preview }}</span>
+                    <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);flex:none;">{{ it.ago }}</span>
+                    <button onClick="{{ it.onView }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 12px var(--fontUi);cursor:pointer;flex:none;">View</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- GROUPED VIEW -->
+            <sc-if value="{{ showGrouped }}">
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+                  <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;">
+                    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border,rgba(255,255,255,0.09));background:var(--surface2,#1b1b22);">
+                      <span style="{{ g.typeChip }}">{{ g.type }}</span>
+                      <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);">{{ g.count }} items · {{ g.unread }} unread</span>
+                    </div>
+                    <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                      <div style="{{ it.compactStyle }}">
+                        <input type="checkbox" checked="{{ it.selected }}" onChange="{{ it.onToggle }}" style="accent-color:var(--accent,#4f7cff);width:15px;height:15px;cursor:pointer;flex:none;">
+                        <span style="{{ it.dotStyle }}"></span>
+                        <span style="font:500 12px var(--fontMono);color:var(--text2,#9b9ba4);flex:none;width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ it.source }}</span>
+                        <span style="flex:1;font:400 12px var(--fontMono);color:var(--text2,#9b9ba4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ it.preview }}</span>
+                        <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);flex:none;">{{ it.ago }}</span>
+                        <button onClick="{{ it.onView }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 12px var(--fontUi);cursor:pointer;flex:none;">View</button>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ---------- ITEM DETAIL ---------- -->
+        <sc-if value="{{ isItemDetail }}">
+          <div data-screen-label="Item detail">
+            <button onClick="{{ goItems }}" style="background:none;border:none;color:var(--text2,#9b9ba4);font:500 13px var(--fontUi);cursor:pointer;padding:0;margin-bottom:18px;">← Items</button>
+            <sc-if value="{{ detailFound }}">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+                <span style="{{ detail.typeChip }}">{{ detail.type }}</span>
+                <span style="{{ detail.statusChip }}">{{ detail.status }}</span>
+                <code style="font:500 13px var(--fontMono);color:var(--text3,#646470);">{{ detail.id }}</code>
+                <div style="flex:1;"></div>
+                <button onClick="{{ detail.onToggleRead }}" style="background:var(--accent,#4f7cff);color:var(--accentText,#fff);border:none;border-radius:var(--radius,8px);padding:9px 16px;font:600 13px var(--fontUi);cursor:pointer;">{{ detail.toggleLabel }}</button>
+                <button onClick="{{ detail.onDelete }}" style="background:transparent;color:var(--red,#f15c43);border:1px solid var(--redSoft,rgba(241,92,67,0.4));border-radius:var(--radius,8px);padding:9px 16px;font:600 13px var(--fontUi);cursor:pointer;">Delete</button>
+              </div>
+              <div style="display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;">
+                <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;">
+                  <sc-for list="{{ detail.meta }}" as="m" hint-placeholder-count="5">
+                    <div style="display:flex;justify-content:space-between;gap:14px;padding:13px 16px;border-bottom:1px solid var(--border,rgba(255,255,255,0.06));">
+                      <span style="font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">{{ m.k }}</span>
+                      <span style="font:500 13px var(--fontMono);color:var(--text,#e9e9ec);text-align:right;word-break:break-all;">{{ m.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border,rgba(255,255,255,0.09));">
+                    <span style="font:600 12px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Payload</span>
+                    <button onClick="{{ detail.onCopy }}" style="background:var(--surface2,#1b1b22);border:1px solid var(--border,rgba(255,255,255,0.09));color:var(--text2,#9b9ba4);border-radius:6px;padding:5px 11px;font:500 11px var(--fontUi);cursor:pointer;">Copy</button>
+                  </div>
+                  <pre class="hj-scroll" style="margin:0;padding:18px;font:400 13px/1.6 var(--fontMono);color:var(--text,#e9e9ec);overflow:auto;max-height:420px;">{{ detail.payload }}</pre>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ detailMissing }}">
+              <div style="text-align:center;padding:70px 20px;background:var(--surface,#15151a);border:1px dashed var(--border2,rgba(255,255,255,0.15));border-radius:var(--radius,8px);">
+                <p style="font:500 15px var(--fontUi);color:var(--text2,#9b9ba4);margin:0 0 12px;">Item not found.</p>
+                <button onClick="{{ goItems }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 13px var(--fontUi);cursor:pointer;">← Back to Items</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ---------- TYPES ---------- -->
+        <sc-if value="{{ isTypes }}">
+          <div data-screen-label="Types">
+            <div style="margin-bottom:20px;">
+              <h1 style="font:700 24px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 4px;letter-spacing:-0.02em;">Types</h1>
+              <p style="font:400 14px var(--fontUi);color:var(--text3,#646470);margin:0;">The catalog of accepted item types. Each carries a JSON Schema.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px;">
+              <sc-for list="{{ typeRows }}" as="t" hint-placeholder-count="5">
+                <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;">
+                  <div style="display:flex;align-items:center;gap:14px;padding:15px 18px;">
+                    <code style="font:600 14px var(--fontMono);color:var(--text,#e9e9ec);">{{ t.name }}</code>
+                    <span style="flex:1;font:400 13px var(--fontUi);color:var(--text2,#9b9ba4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.description }}</span>
+                    <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);white-space:nowrap;">{{ t.updated }}</span>
+                    <button onClick="{{ t.onToggle }}" style="background:var(--surface2,#1b1b22);border:1px solid var(--border,rgba(255,255,255,0.09));color:var(--text2,#9b9ba4);border-radius:6px;padding:6px 12px;font:500 12px var(--fontUi);cursor:pointer;">{{ t.toggleLabel }}</button>
+                    <button onClick="{{ t.onEdit }}" style="background:none;border:none;color:var(--accent,#4f7cff);font:600 13px var(--fontUi);cursor:pointer;">Edit</button>
+                  </div>
+                  <sc-if value="{{ t.expanded }}">
+                    <div style="border-top:1px solid var(--border,rgba(255,255,255,0.09));background:var(--bg,#0d0d0f);padding:16px 18px;display:flex;flex-direction:column;gap:14px;">
+                      <div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Submit an item · needs write key</span><button onClick="{{ t.onCopySubmit }}" style="background:var(--surface2,#1b1b22);border:1px solid var(--border,rgba(255,255,255,0.09));color:var(--text2,#9b9ba4);border-radius:5px;padding:4px 10px;font:500 11px var(--fontUi);cursor:pointer;">Copy</button></div>
+                        <pre class="hj-scroll" style="margin:0;padding:13px 15px;background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;font:400 12px/1.55 var(--fontMono);color:var(--text2,#9b9ba4);overflow:auto;">{{ t.submitCurl }}</pre>
+                      </div>
+                      <div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Poll this type · needs read key</span><button onClick="{{ t.onCopyPoll }}" style="background:var(--surface2,#1b1b22);border:1px solid var(--border,rgba(255,255,255,0.09));color:var(--text2,#9b9ba4);border-radius:5px;padding:4px 10px;font:500 11px var(--fontUi);cursor:pointer;">Copy</button></div>
+                        <pre class="hj-scroll" style="margin:0;padding:13px 15px;background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;font:400 12px/1.55 var(--fontMono);color:var(--text2,#9b9ba4);overflow:auto;">{{ t.pollCurl }}</pre>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:22px;">
+              <h2 style="font:700 16px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 16px;">Register a type</h2>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                <div>
+                  <label style="display:block;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:7px;">Name</label>
+                  <input value="{{ typeForm.name }}" onInput="{{ onTypeName }}" placeholder="e.g. github-pr" style="width:100%;background:var(--bg,#0d0d0f);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:10px 12px;font:500 13px var(--fontMono);">
+                </div>
+                <div>
+                  <label style="display:block;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:7px;">Description</label>
+                  <input value="{{ typeForm.description }}" onInput="{{ onTypeDesc }}" placeholder="What this type carries" style="width:100%;background:var(--bg,#0d0d0f);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:10px 12px;font:500 13px var(--fontUi);">
+                </div>
+              </div>
+              <label style="display:block;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:7px;">JSON Schema</label>
+              <textarea value="{{ typeForm.schema }}" onInput="{{ onTypeSchema }}" spellcheck="false" style="width:100%;height:180px;background:var(--bg,#0d0d0f);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:13px;font:400 13px/1.5 var(--fontMono);resize:vertical;"></textarea>
+              <div style="margin-top:16px;"><button onClick="{{ registerType }}" style="background:var(--accent,#4f7cff);color:var(--accentText,#fff);border:none;border-radius:var(--radius,8px);padding:11px 20px;font:600 13px var(--fontUi);cursor:pointer;">Register type</button></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ---------- EDIT TYPE ---------- -->
+        <sc-if value="{{ isTypeEdit }}">
+          <div data-screen-label="Edit type">
+            <button onClick="{{ goTypes }}" style="background:none;border:none;color:var(--text2,#9b9ba4);font:500 13px var(--fontUi);cursor:pointer;padding:0;margin-bottom:18px;">← Types</button>
+            <h1 style="font:700 23px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 20px;letter-spacing:-0.02em;">Edit <code style="font:700 21px var(--fontMono);color:var(--accent,#4f7cff);">{{ editName }}</code></h1>
+            <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:22px;max-width:780px;">
+              <label style="display:block;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:7px;">Description</label>
+              <input value="{{ editForm.description }}" onInput="{{ onEditDesc }}" style="width:100%;background:var(--bg,#0d0d0f);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:10px 12px;font:500 13px var(--fontUi);margin-bottom:16px;">
+              <label style="display:block;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:7px;">JSON Schema</label>
+              <textarea value="{{ editForm.schema }}" onInput="{{ onEditSchema }}" spellcheck="false" style="width:100%;height:280px;background:var(--bg,#0d0d0f);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:13px;font:400 13px/1.5 var(--fontMono);resize:vertical;"></textarea>
+              <div style="display:flex;gap:10px;margin-top:18px;">
+                <button onClick="{{ saveType }}" style="background:var(--accent,#4f7cff);color:var(--accentText,#fff);border:none;border-radius:var(--radius,8px);padding:11px 20px;font:600 13px var(--fontUi);cursor:pointer;">Save</button>
+                <button onClick="{{ goTypes }}" style="background:transparent;color:var(--text2,#9b9ba4);border:1px solid var(--border2,rgba(255,255,255,0.15));border-radius:var(--radius,8px);padding:11px 20px;font:600 13px var(--fontUi);cursor:pointer;">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ---------- KEYS ---------- -->
+        <sc-if value="{{ isKeys }}">
+          <div data-screen-label="Keys">
+            <div style="margin-bottom:20px;">
+              <h1 style="font:700 24px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 4px;letter-spacing:-0.02em;">API keys</h1>
+              <p style="font:400 14px var(--fontUi);color:var(--text3,#646470);margin:0;">Issue scoped bearer tokens for producers and hermes.</p>
+            </div>
+
+            <sc-if value="{{ newKey }}">
+              <div style="background:var(--greenSoft,rgba(52,194,126,0.14));border:1px solid var(--green,#34c27e);border-radius:var(--radius,8px);padding:18px;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:15px;">🔑</span><span style="font:600 14px var(--fontUi);color:var(--text,#e9e9ec);">Key <code style="font:600 14px var(--fontMono);color:var(--green,#34c27e);">{{ newKey.name }}</code> created</span></div>
+                <p style="font:500 12px var(--fontUi);color:var(--text2,#9b9ba4);margin:0 0 10px;">Copy it now — it won't be shown again.</p>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <code style="flex:1;background:var(--bg,#0d0d0f);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:11px 14px;font:500 13px var(--fontMono);color:var(--text,#e9e9ec);overflow:auto;white-space:nowrap;">{{ newKey.token }}</code>
+                  <button onClick="{{ copyNewKey }}" style="background:var(--green,#34c27e);color:#062a18;border:none;border-radius:6px;padding:11px 16px;font:600 13px var(--fontUi);cursor:pointer;white-space:nowrap;">Copy token</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);overflow:hidden;margin-bottom:24px;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead><tr style="border-bottom:1px solid var(--border,rgba(255,255,255,0.09));">
+                  <th style="text-align:left;padding:11px 18px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Name</th>
+                  <th style="text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Scope</th>
+                  <th style="text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Created</th>
+                  <th style="text-align:left;padding:11px 8px;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);">Status</th>
+                  <th style="padding:11px 18px;"></th>
+                </tr></thead>
+                <tbody>
+                  <sc-for list="{{ keyRows }}" as="k" hint-placeholder-count="5">
+                    <tr style="border-bottom:1px solid var(--border,rgba(255,255,255,0.06));">
+                      <td style="padding:14px 18px;font:600 13px var(--fontMono);color:var(--text,#e9e9ec);">{{ k.name }}</td>
+                      <td style="padding:14px 8px;"><span style="{{ k.scopeChip }}">{{ k.scope }}</span></td>
+                      <td style="padding:14px 8px;font:400 12px var(--fontMono);color:var(--text3,#646470);">{{ k.created }}</td>
+                      <td style="padding:14px 8px;"><span style="{{ k.statusChip }}">{{ k.status }}</span></td>
+                      <td style="padding:14px 18px;text-align:right;">
+                        <sc-if value="{{ k.active }}"><button onClick="{{ k.onRevoke }}" style="background:none;border:none;color:var(--text3,#646470);font:600 12px var(--fontUi);cursor:pointer;" style-hover="color:var(--red,#f15c43)">Revoke</button></sc-if>
+                      </td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="background:var(--surface,#15151a);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:var(--radius,8px);padding:22px;">
+              <h2 style="font:700 16px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 16px;">Create a key</h2>
+              <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div style="flex:1;min-width:220px;">
+                  <label style="display:block;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:7px;">Name</label>
+                  <input value="{{ keyForm.name }}" onInput="{{ onKeyName }}" placeholder="hermes-cron or acme-webhook" style="width:100%;background:var(--bg,#0d0d0f);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:10px 12px;font:500 13px var(--fontMono);">
+                </div>
+                <div style="width:160px;">
+                  <label style="display:block;font:600 11px var(--fontMono);letter-spacing:0.06em;text-transform:uppercase;color:var(--text3,#646470);margin-bottom:7px;">Scope</label>
+                  <select value="{{ keyForm.scope }}" onChange="{{ onKeyScope }}" style="width:100%;background:var(--bg,#0d0d0f);color:var(--text,#e9e9ec);border:1px solid var(--border,rgba(255,255,255,0.09));border-radius:6px;padding:10px 12px;font:500 13px var(--fontUi);cursor:pointer;">
+                    <option value="write">write</option>
+                    <option value="read">read</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </div>
+                <button onClick="{{ createKey }}" style="background:var(--accent,#4f7cff);color:var(--accentText,#fff);border:none;border-radius:var(--radius,8px);padding:11px 20px;font:600 13px var(--fontUi);cursor:pointer;">Create</button>
+              </div>
+              <div style="display:flex;gap:18px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border,rgba(255,255,255,0.06));flex-wrap:wrap;">
+                <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);"><b style="color:var(--accent,#4f7cff);">write</b> · submit items</span>
+                <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);"><b style="color:var(--green,#34c27e);">read</b> · poll/ack (hermes)</span>
+                <span style="font:400 12px var(--fontMono);color:var(--text3,#646470);"><b style="color:var(--amber,#e0a83a);">admin</b> · manage types &amp; keys</span>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+      </main>
+    </div>
+  </sc-if>
+
+  <!-- ===================== MODAL ===================== -->
+  <sc-if value="{{ modal }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px;">
+      <div onClick="{{ stop }}" style="width:400px;max-width:100%;background:var(--elevated,#212129);border:1px solid var(--border2,rgba(255,255,255,0.15));border-radius:calc(var(--radius,8px) + 2px);padding:24px;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+        <h3 style="font:700 16px var(--fontUi);color:var(--text,#e9e9ec);margin:0 0 8px;">{{ modal.title }}</h3>
+        <p style="font:400 13px/1.55 var(--fontUi);color:var(--text2,#9b9ba4);margin:0 0 20px;">{{ modal.body }}</p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button onClick="{{ closeModal }}" style="background:transparent;color:var(--text2,#9b9ba4);border:1px solid var(--border2,rgba(255,255,255,0.15));border-radius:var(--radius,8px);padding:9px 16px;font:600 13px var(--fontUi);cursor:pointer;">Cancel</button>
+          <button onClick="{{ modal.onConfirm }}" style="{{ modal.confirmStyle }}">{{ modal.confirmLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== TOAST ===================== -->
+  <sc-if value="{{ copied }}">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--elevated,#212129);border:1px solid var(--border2,rgba(255,255,255,0.15));border-radius:999px;padding:10px 20px;font:600 13px var(--fontUi);color:var(--text,#e9e9ec);box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:60;display:flex;align-items:center;gap:8px;">
+      <span style="color:var(--green,#34c27e);">✓</span> {{ copied }}
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;midnight&quot;,&quot;paper&quot;,&quot;console&quot;],&quot;default&quot;:&quot;midnight&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;default&quot;:&quot;comfortable&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+const DEFAULT_SCHEMA = '{\n  "type": "object",\n  "properties": {\n    \n  },\n  "required": []\n}';
+
+class Component extends DCLogic {
+  NOW = Date.parse('2026-06-28T15:00:00Z');
+
+  state = {
+    authed: false,
+    route: { name: 'login', params: {} },
+    theme: (this.props && this.props.theme) || 'midnight',
+    density: (this.props && this.props.density) || 'comfortable',
+    itemsView: 'table',
+    filterType: 'all',
+    filterState: 'all',
+    selected: [],
+    modal: null,
+    banner: null,
+    newKey: null,
+    copied: null,
+    expanded: null,
+    typeForm: { name: '', description: '', schema: DEFAULT_SCHEMA },
+    editForm: { name: '', description: '', schema: '' },
+    keyForm: { name: '', scope: 'write' },
+    types: [
+      { name: 'github-pr', description: 'Pull request lifecycle events from GitHub.', updatedMin: 5760, schema: '{\n  "type": "object",\n  "properties": {\n    "repo": { "type": "string" },\n    "number": { "type": "integer" },\n    "title": { "type": "string" },\n    "author": { "type": "string" },\n    "action": { "type": "string" }\n  },\n  "required": ["repo", "number", "action"]\n}', example: { repo: 'acme/web', number: 482, title: 'Fix flaky checkout test', author: 'jdoe', action: 'opened' } },
+      { name: 'deploy-status', description: 'CI/CD deployment outcomes per service & env.', updatedMin: 2880, schema: '{\n  "type": "object",\n  "properties": {\n    "service": { "type": "string" },\n    "env": { "type": "string" },\n    "status": { "type": "string" },\n    "version": { "type": "string" }\n  },\n  "required": ["service", "env", "status"]\n}', example: { service: 'api', env: 'production', status: 'success', version: 'v2.14.0' } },
+      { name: 'sentry-error', description: 'Aggregated error events from Sentry.', updatedMin: 1440, schema: '{\n  "type": "object",\n  "properties": {\n    "project": { "type": "string" },\n    "level": { "type": "string" },\n    "message": { "type": "string" },\n    "events": { "type": "integer" }\n  },\n  "required": ["project", "level", "message"]\n}', example: { project: 'web', level: 'error', message: 'TypeError: cannot read id of undefined', events: 37 } },
+      { name: 'calendar-invite', description: 'Incoming calendar invitations to triage.', updatedMin: 10080, schema: '{\n  "type": "object",\n  "properties": {\n    "title": { "type": "string" },\n    "organizer": { "type": "string" },\n    "start": { "type": "string" },\n    "attendees": { "type": "integer" }\n  },\n  "required": ["title", "organizer", "start"]\n}', example: { title: 'Design review', organizer: 'maya@acme.co', start: '2026-06-29T17:00:00Z', attendees: 5 } },
+      { name: 'slack-mention', description: 'Messages where hermes was @-mentioned.', updatedMin: 720, schema: '{\n  "type": "object",\n  "properties": {\n    "channel": { "type": "string" },\n    "user": { "type": "string" },\n    "text": { "type": "string" }\n  },\n  "required": ["channel", "user", "text"]\n}', example: { channel: '#eng-alerts', user: 'on-call', text: 'can someone ack the deploy?' } },
+    ],
+    items: [
+      { id: 'itm_9f2a', type: 'deploy-status', source: 'ci-deploy', minAgo: 3, read: false, payload: { service: 'api', env: 'production', status: 'success', version: 'v2.14.0', duration_s: 142 } },
+      { id: 'itm_8c14', type: 'sentry-error', source: 'sentry-hook', minAgo: 11, read: false, payload: { project: 'web', level: 'error', message: 'TypeError: cannot read id of undefined', events: 37 } },
+      { id: 'itm_7b03', type: 'github-pr', source: 'gh-bot', minAgo: 24, read: false, payload: { repo: 'acme/web', number: 482, title: 'Fix flaky checkout test', author: 'jdoe', action: 'opened' } },
+      { id: 'itm_77ee', type: 'slack-mention', source: 'slack-hook', minAgo: 38, read: false, payload: { channel: '#eng-alerts', user: 'on-call', text: 'can someone ack the deploy?' } },
+      { id: 'itm_6d91', type: 'github-pr', source: 'gh-bot', minAgo: 52, read: false, payload: { repo: 'acme/api', number: 119, title: 'Add rate-limit headers', author: 'lchen', action: 'review_requested' } },
+      { id: 'itm_5a22', type: 'calendar-invite', source: 'gcal-sync', minAgo: 95, read: false, payload: { title: 'Design review', organizer: 'maya@acme.co', start: '2026-06-29T17:00:00Z', attendees: 5 } },
+      { id: 'itm_5018', type: 'deploy-status', source: 'ci-deploy', minAgo: 140, read: true, readMin: 132, payload: { service: 'web', env: 'staging', status: 'failed', version: 'v2.14.0-rc3', duration_s: 88 } },
+      { id: 'itm_4c77', type: 'sentry-error', source: 'sentry-hook', minAgo: 210, read: true, readMin: 200, payload: { project: 'api', level: 'warning', message: 'Slow query: GET /orders 2.4s', events: 12 } },
+      { id: 'itm_42b0', type: 'github-pr', source: 'gh-bot', minAgo: 305, read: true, readMin: 290, payload: { repo: 'acme/web', number: 480, title: 'Bump dependencies', author: 'renovate', action: 'merged' } },
+      { id: 'itm_3e51', type: 'slack-mention', source: 'slack-hook', minAgo: 410, read: true, readMin: 400, payload: { channel: '#general', user: 'pmorris', text: 'hermes can you summarize today?' } },
+      { id: 'itm_2f8d', type: 'calendar-invite', source: 'gcal-sync', minAgo: 600, read: true, readMin: 590, payload: { title: 'Weekly sync', organizer: 'lead@acme.co', start: '2026-06-30T15:00:00Z', attendees: 8 } },
+      { id: 'itm_2104', type: 'deploy-status', source: 'ci-deploy', minAgo: 880, read: true, readMin: 870, payload: { service: 'workers', env: 'production', status: 'success', version: 'v2.13.9', duration_s: 64 } },
+      { id: 'itm_1a09', type: 'github-pr', source: 'gh-bot', minAgo: 1210, read: true, readMin: 1200, payload: { repo: 'acme/infra', number: 57, title: 'Terraform: add cache cluster', author: 'devops', action: 'closed' } },
+      { id: 'itm_0b3c', type: 'sentry-error', source: 'sentry-hook', minAgo: 1700, read: true, readMin: 1690, payload: { project: 'web', level: 'error', message: 'NetworkError when fetching /api/discover', events: 4 } },
+    ],
+    keys: [
+      { id: 'key_1', name: 'hermes-cron', scope: 'read', createdMin: 43200, revoked: false },
+      { id: 'key_2', name: 'gh-bot', scope: 'write', createdMin: 21600, revoked: false },
+      { id: 'key_3', name: 'ci-deploy', scope: 'write', createdMin: 14400, revoked: false },
+      { id: 'key_4', name: 'ops-admin', scope: 'admin', createdMin: 50400, revoked: false },
+      { id: 'key_5', name: 'legacy-webhook', scope: 'write', createdMin: 86400, revoked: true },
+    ],
+  };
+
+  THEMES = {
+    midnight: { '--bg': '#0d0d0f', '--surface': '#15151a', '--surface2': '#1b1b22', '--elevated': '#212129', '--border': 'rgba(255,255,255,0.09)', '--border2': 'rgba(255,255,255,0.15)', '--text': '#e9e9ec', '--text2': '#9b9ba4', '--text3': '#646470', '--accent': '#4f7cff', '--accentText': '#ffffff', '--accentSoft': 'rgba(79,124,255,0.15)', '--accentBorder': 'rgba(79,124,255,0.4)', '--green': '#34c27e', '--greenSoft': 'rgba(52,194,126,0.14)', '--red': '#f15c43', '--redSoft': 'rgba(241,92,67,0.16)', '--amber': '#e0a83a', '--amberSoft': 'rgba(224,168,58,0.16)', '--radius': '8px', '--fontUi': "'IBM Plex Sans', sans-serif", '--fontMono': "'IBM Plex Mono', monospace" },
+    paper: { '--bg': '#f5f4f0', '--surface': '#ffffff', '--surface2': '#f0efea', '--elevated': '#ffffff', '--border': 'rgba(20,20,20,0.11)', '--border2': 'rgba(20,20,20,0.22)', '--text': '#1b1b1d', '--text2': '#5d5d62', '--text3': '#90909a', '--accent': '#2f63f6', '--accentText': '#ffffff', '--accentSoft': 'rgba(47,99,246,0.1)', '--accentBorder': 'rgba(47,99,246,0.35)', '--green': '#1f9d5e', '--greenSoft': 'rgba(31,157,94,0.12)', '--red': '#d8442c', '--redSoft': 'rgba(216,68,44,0.12)', '--amber': '#b9821a', '--amberSoft': 'rgba(185,130,26,0.14)', '--radius': '8px', '--fontUi': "'IBM Plex Sans', sans-serif", '--fontMono': "'IBM Plex Mono', monospace" },
+    console: { '--bg': '#070a07', '--surface': '#0c110c', '--surface2': '#101610', '--elevated': '#141b14', '--border': 'rgba(110,200,130,0.16)', '--border2': 'rgba(110,200,130,0.3)', '--text': '#cdeccd', '--text2': '#86ad86', '--text3': '#577457', '--accent': '#46d27d', '--accentText': '#04130a', '--accentSoft': 'rgba(70,210,125,0.13)', '--accentBorder': 'rgba(70,210,125,0.45)', '--green': '#46d27d', '--greenSoft': 'rgba(70,210,125,0.13)', '--red': '#ff6b54', '--redSoft': 'rgba(255,107,84,0.15)', '--amber': '#e0c14a', '--amberSoft': 'rgba(224,193,74,0.15)', '--radius': '3px', '--fontUi': "'IBM Plex Mono', monospace", '--fontMono': "'IBM Plex Mono', monospace" },
+  };
+
+  // ---- time helpers ----
+  fmtAgo(min) { if (min < 1) return 'just now'; if (min < 60) return min + 'm ago'; if (min < 1440) return Math.floor(min / 60) + 'h ago'; return Math.floor(min / 1440) + 'd ago'; }
+  fmtAbs(min) { const d = new Date(this.NOW - min * 60000); return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+
+  // ---- chip styles ----
+  chip(kind) {
+    const base = { display: 'inline-block', padding: '3px 9px', borderRadius: '999px', font: "600 11px var(--fontMono)", letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' };
+    const map = {
+      type: { background: 'var(--surface2,#1b1b22)', color: 'var(--text2,#9b9ba4)', border: '1px solid var(--border,rgba(255,255,255,0.09))' },
+      unread: { background: 'var(--accentSoft,rgba(79,124,255,0.15))', color: 'var(--accent,#4f7cff)' },
+      read: { background: 'transparent', color: 'var(--text3,#646470)', border: '1px solid var(--border,rgba(255,255,255,0.09))' },
+      write: { background: 'var(--accentSoft,rgba(79,124,255,0.15))', color: 'var(--accent,#4f7cff)' },
+      readScope: { background: 'var(--greenSoft,rgba(52,194,126,0.14))', color: 'var(--green,#34c27e)' },
+      admin: { background: 'var(--amberSoft,rgba(224,168,58,0.16))', color: 'var(--amber,#e0a83a)' },
+      active: { background: 'var(--greenSoft,rgba(52,194,126,0.14))', color: 'var(--green,#34c27e)' },
+      revoked: { background: 'var(--redSoft,rgba(241,92,67,0.16))', color: 'var(--red,#f15c43)' },
+    };
+    return Object.assign({}, base, map[kind] || map.type);
+  }
+  dot(unread) { return { width: '7px', height: '7px', borderRadius: '50%', flex: 'none', background: unread ? 'var(--accent,#4f7cff)' : 'var(--text3,#646470)', animation: unread ? 'hjPulse 2s ease-in-out infinite' : 'none' }; }
+
+  // ---- navigation ----
+  go = (name, params = {}) => this.setState({ route: { name, params }, banner: null });
+  goDashboard = () => this.go('dashboard');
+  goItems = () => this.go('items');
+  goTypes = () => this.go('types');
+  goKeys = () => this.go('keys');
+  login = () => this.setState({ authed: true, route: { name: 'dashboard', params: {} } });
+  logout = () => this.setState({ authed: false, route: { name: 'login', params: {} }, selected: [], newKey: null, banner: null });
+  setTheme = (t) => this.setState({ theme: t });
+  setView = (v) => this.setState({ itemsView: v });
+  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+  closeBanner = () => this.setState({ banner: null });
+  closeModal = () => this.setState({ modal: null });
+
+  // ---- filters ----
+  onFilterType = (e) => this.setState({ filterType: e.target.value, selected: [] });
+  onFilterAll = () => this.setState({ filterState: 'all', selected: [] });
+  onFilterUnread = () => this.setState({ filterState: 'unread', selected: [] });
+
+  // ---- selection ----
+  filtered() {
+    return this.state.items.filter(it =>
+      (this.state.filterType === 'all' || it.type === this.state.filterType) &&
+      (this.state.filterState === 'all' || !it.read)
+    ).sort((a, b) => a.minAgo - b.minAgo);
+  }
+  toggleSelect = (id) => this.setState(s => ({ selected: s.selected.includes(id) ? s.selected.filter(x => x !== id) : [...s.selected, id] }));
+  toggleSelectAll = () => { const ids = this.filtered().map(i => i.id); const all = ids.length > 0 && ids.every(i => this.state.selected.includes(i)); this.setState({ selected: all ? [] : ids }); };
+  clearSelection = () => this.setState({ selected: [] });
+  bulkAck = () => { const sel = this.state.selected; this.setState(s => ({ items: s.items.map(i => sel.includes(i.id) ? { ...i, read: true, readMin: 0 } : i), selected: [], banner: { kind: 'success', icon: '✓', msg: sel.length + ' item' + (sel.length > 1 ? 's' : '') + ' acked.' } })); };
+  bulkDelete = () => { const sel = this.state.selected; this.setState({ modal: { title: 'Delete ' + sel.length + ' items?', body: 'This permanently removes the selected items from the queue. This cannot be undone.', confirmLabel: 'Delete ' + sel.length, confirmStyle: this.dangerBtn(), onConfirm: () => this.setState(s => ({ items: s.items.filter(i => !sel.includes(i.id)), selected: [], modal: null, banner: { kind: 'success', icon: '✓', msg: sel.length + ' items deleted.' } })) } }); };
+
+  dangerBtn() { return { background: 'var(--red,#f15c43)', color: '#fff', border: 'none', borderRadius: 'var(--radius,8px)', padding: '9px 16px', font: '600 13px var(--fontUi)', cursor: 'pointer' }; }
+  primaryBtn() { return { background: 'var(--accent,#4f7cff)', color: 'var(--accentText,#fff)', border: 'none', borderRadius: 'var(--radius,8px)', padding: '9px 16px', font: '600 13px var(--fontUi)', cursor: 'pointer' }; }
+
+  // ---- item actions ----
+  ackItem = (id) => this.setState(s => ({ items: s.items.map(i => i.id === id ? { ...i, read: true, readMin: 0 } : i), banner: { kind: 'success', icon: '✓', msg: 'Item acked.' } }));
+  unreadItem = (id) => this.setState(s => ({ items: s.items.map(i => i.id === id ? { ...i, read: false } : i) }));
+  toggleRead = (id) => { const it = this.state.items.find(i => i.id === id); if (!it) return; it.read ? this.unreadItem(id) : this.ackItem(id); };
+  deleteItem = (id, after) => this.setState({ modal: { title: 'Delete item?', body: 'This permanently removes item ' + id + ' from the queue. This cannot be undone.', confirmLabel: 'Delete', confirmStyle: this.dangerBtn(), onConfirm: () => this.setState(s => ({ items: s.items.filter(i => i.id !== id), selected: s.selected.filter(x => x !== id), modal: null, route: after || s.route, banner: { kind: 'success', icon: '✓', msg: 'Item deleted.' } })) } });
+
+  // ---- types ----
+  toggleExpand = (name) => this.setState(s => ({ expanded: s.expanded === name ? null : name }));
+  onTypeName = (e) => this.setState(s => ({ typeForm: { ...s.typeForm, name: e.target.value } }));
+  onTypeDesc = (e) => this.setState(s => ({ typeForm: { ...s.typeForm, description: e.target.value } }));
+  onTypeSchema = (e) => this.setState(s => ({ typeForm: { ...s.typeForm, schema: e.target.value } }));
+  genExample(schemaObj) {
+    const out = {}; const props = (schemaObj && schemaObj.properties) || {};
+    for (const k in props) { const t = props[k].type; out[k] = t === 'integer' || t === 'number' ? 0 : t === 'boolean' ? true : t === 'array' ? [] : t === 'object' ? {} : 'example'; }
+    return out;
+  }
+  registerType = () => {
+    const f = this.state.typeForm; const name = f.name.trim();
+    if (!name) return this.setState({ banner: { kind: 'error', icon: '⚠', msg: 'Type name is required.' } });
+    if (!/^[a-z0-9-]+$/.test(name)) return this.setState({ banner: { kind: 'error', icon: '⚠', msg: 'Name must be lowercase letters, numbers and dashes only.' } });
+    if (this.state.types.some(t => t.name === name)) return this.setState({ banner: { kind: 'error', icon: '⚠', msg: 'A type named "' + name + '" already exists.' } });
+    let parsed; try { parsed = JSON.parse(f.schema); } catch (err) { return this.setState({ banner: { kind: 'error', icon: '⚠', msg: 'JSON Schema is not valid JSON: ' + err.message } }); }
+    const t = { name, description: f.description.trim() || '—', updatedMin: 0, schema: f.schema, example: this.genExample(parsed) };
+    this.setState(s => ({ types: [...s.types, t], typeForm: { name: '', description: '', schema: DEFAULT_SCHEMA }, banner: { kind: 'success', icon: '✓', msg: 'Type "' + name + '" registered.' } }));
+  };
+  startEdit = (name) => { const t = this.state.types.find(x => x.name === name); if (!t) return; let pretty = t.schema; try { pretty = JSON.stringify(JSON.parse(t.schema), null, 2); } catch (e) {} this.setState({ editForm: { name, description: t.description, schema: pretty }, route: { name: 'typeEdit', params: { name } }, banner: null }); };
+  onEditDesc = (e) => this.setState(s => ({ editForm: { ...s.editForm, description: e.target.value } }));
+  onEditSchema = (e) => this.setState(s => ({ editForm: { ...s.editForm, schema: e.target.value } }));
+  saveType = () => {
+    const f = this.state.editForm;
+    let parsed; try { parsed = JSON.parse(f.schema); } catch (err) { return this.setState({ banner: { kind: 'error', icon: '⚠', msg: 'JSON Schema is not valid JSON: ' + err.message } }); }
+    this.setState(s => ({ types: s.types.map(t => t.name === f.name ? { ...t, description: f.description.trim() || '—', schema: f.schema, updatedMin: 0, example: this.genExample(parsed) } : t), route: { name: 'types', params: {} }, banner: { kind: 'success', icon: '✓', msg: 'Type "' + f.name + '" saved.' } }));
+  };
+
+  // ---- keys ----
+  onKeyName = (e) => this.setState(s => ({ keyForm: { ...s.keyForm, name: e.target.value } }));
+  onKeyScope = (e) => this.setState(s => ({ keyForm: { ...s.keyForm, scope: e.target.value } }));
+  rand(n) { const c = 'abcdef0123456789'; let o = ''; for (let i = 0; i < n; i++) o += c[Math.floor(Math.random() * 16)]; return o; }
+  createKey = () => {
+    const f = this.state.keyForm; const name = f.name.trim();
+    if (!name) return this.setState({ banner: { kind: 'error', icon: '⚠', msg: 'Key name is required.' } });
+    if (this.state.keys.some(k => k.name === name && !k.revoked)) return this.setState({ banner: { kind: 'error', icon: '⚠', msg: 'An active key named "' + name + '" already exists.' } });
+    const token = 'hjk_' + f.scope[0] + '_' + this.rand(28);
+    this.setState(s => ({ keys: [{ id: 'key_' + Date.now(), name, scope: f.scope, createdMin: 0, revoked: false }, ...s.keys], newKey: { name, token }, keyForm: { name: '', scope: 'write' }, banner: null }));
+  };
+  revokeKey = (id) => { const k = this.state.keys.find(x => x.id === id); this.setState({ modal: { title: 'Revoke key?', body: 'Revoking "' + (k ? k.name : '') + '" immediately invalidates the token. Any producer or consumer using it will start failing with 401.', confirmLabel: 'Revoke key', confirmStyle: this.dangerBtn(), onConfirm: () => this.setState(s => ({ keys: s.keys.map(x => x.id === id ? { ...x, revoked: true } : x), modal: null, banner: { kind: 'success', icon: '✓', msg: 'Key revoked.' } })) } }); };
+
+  // ---- copy ----
+  copy = (text, label) => { try { navigator.clipboard && navigator.clipboard.writeText(text); } catch (e) {} this.setState({ copied: label || 'Copied' }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: null }), 1600); };
+
+  curlSubmit(t) { return 'curl -X POST https://hermes-jester.exe.dev/api/item/' + t.name + ' \\\n  -H "Authorization: Bearer $WRITE_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'' + JSON.stringify(t.example) + '\''; }
+  curlPoll(t) { return 'curl "https://hermes-jester.exe.dev/api/item/' + t.name + '?unread=true&limit=50" \\\n  -H "Authorization: Bearer $READ_KEY"'; }
+
+  renderVals() {
+    const s = this.state;
+    const theme = this.THEMES[s.theme] || this.THEMES.midnight;
+    const rootStyle = Object.assign({ minHeight: '100vh', background: 'var(--bg,#0d0d0f)', color: 'var(--text,#e9e9ec)', fontFamily: 'var(--fontUi)' }, theme);
+
+    const r = s.route.name;
+    const isApp = s.authed;
+    const compactPad = s.density === 'compact' ? '8px 16px' : '11px 16px';
+
+    // theme switcher
+    const themeMeta = { midnight: { label: 'Dark', sw: '#4f7cff' }, paper: { label: 'Light', sw: '#2f63f6' }, console: { label: 'Term', sw: '#46d27d' } };
+    const themeOptions = Object.keys(this.THEMES).map(k => {
+      const active = s.theme === k;
+      return {
+        label: themeMeta[k].label, key: k, onClick: () => this.setTheme(k),
+        pillStyle: { background: active ? 'var(--accent,#4f7cff)' : 'transparent', color: active ? 'var(--accentText,#fff)' : 'var(--text3,#646470)', border: 'none', borderRadius: '999px', padding: '6px 14px', font: '600 12px var(--fontUi)', cursor: 'pointer' },
+        dotStyle: { width: '14px', height: '14px', borderRadius: '50%', background: themeMeta[k].sw, border: active ? '2px solid var(--text,#e9e9ec)' : '2px solid transparent', cursor: 'pointer', padding: 0, opacity: active ? 1 : 0.55 },
+      };
+    });
+
+    // nav
+    const unreadCount = s.items.filter(i => !i.read).length;
+    const navDef = [{ k: 'dashboard', label: 'Dashboard', on: this.goDashboard, match: ['dashboard'] }, { k: 'items', label: 'Items', on: this.goItems, match: ['items', 'itemDetail'], badge: unreadCount }, { k: 'types', label: 'Types', on: this.goTypes, match: ['types', 'typeEdit'] }, { k: 'keys', label: 'Keys', on: this.goKeys, match: ['keys'] }];
+    const navItems = navDef.map(n => {
+      const active = n.match.includes(r);
+      return {
+        label: n.label, onClick: n.on, showBadge: !!n.badge,
+        badge: n.badge, badgeStyle: { display: 'inline-block', marginLeft: '6px', minWidth: '18px', padding: '1px 5px', borderRadius: '999px', background: 'var(--accent,#4f7cff)', color: 'var(--accentText,#fff)', font: '600 10px var(--fontMono)', textAlign: 'center' },
+        style: { display: 'inline-flex', alignItems: 'center', background: active ? 'var(--surface2,#1b1b22)' : 'transparent', color: active ? 'var(--text,#e9e9ec)' : 'var(--text2,#9b9ba4)', border: 'none', borderRadius: 'var(--radius,8px)', padding: '7px 13px', font: '600 13px var(--fontUi)', cursor: 'pointer' },
+      };
+    });
+
+    // banner
+    const bannerKind = s.banner && s.banner.kind;
+    const bannerStyle = s.banner ? { display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 15px', borderRadius: 'var(--radius,8px)', background: bannerKind === 'error' ? 'var(--redSoft,rgba(241,92,67,0.16))' : 'var(--greenSoft,rgba(52,194,126,0.14))', border: '1px solid ' + (bannerKind === 'error' ? 'var(--red,#f15c43)' : 'var(--green,#34c27e)'), color: bannerKind === 'error' ? 'var(--red,#f15c43)' : 'var(--green,#34c27e)' } : null;
+
+    // dashboard
+    const stats = [
+      { label: 'Items', value: s.items.length, sub: 'in the queue', color: 'var(--text,#e9e9ec)', onClick: this.goItems, cardStyle: this.statCard(false) },
+      { label: 'Unread', value: unreadCount, sub: 'awaiting hermes', color: 'var(--accent,#4f7cff)', onClick: () => this.setState({ route: { name: 'items', params: {} }, filterState: 'unread' }), cardStyle: this.statCard(true) },
+      { label: 'Types', value: s.types.length, sub: 'registered', color: 'var(--text,#e9e9ec)', onClick: this.goTypes, cardStyle: this.statCard(false) },
+      { label: 'API keys', value: s.keys.filter(k => !k.revoked).length, sub: 'active', color: 'var(--text,#e9e9ec)', onClick: this.goKeys, cardStyle: this.statCard(false) },
+    ];
+    const recent = [...s.items].sort((a, b) => a.minAgo - b.minAgo).slice(0, 6).map(it => ({
+      type: it.type, typeChip: this.chip('type'), dotStyle: this.dot(!it.read), ago: this.fmtAgo(it.minAgo), preview: JSON.stringify(it.payload), onView: () => this.go('itemDetail', { id: it.id }),
+    }));
+    const typePills = s.types.map(t => ({ name: t.name, onClick: this.goTypes }));
+
+    // items rows
+    const filtered = this.filtered();
+    const mapRow = (it) => ({
+      id: it.id, type: it.type, source: it.source, ago: this.fmtAgo(it.minAgo), preview: JSON.stringify(it.payload),
+      selected: s.selected.includes(it.id), status: it.read ? 'read' : 'unread', toggleLabel: it.read ? 'unread' : 'ack',
+      typeChip: this.chip('type'), statusChip: this.chip(it.read ? 'read' : 'unread'), dotStyle: this.dot(!it.read),
+      accentBar: it.read ? '3px solid transparent' : '3px solid var(--accent,#4f7cff)',
+      rowStyle: { borderBottom: '1px solid var(--border,rgba(255,255,255,0.06))', background: s.selected.includes(it.id) ? 'var(--accentSoft,rgba(79,124,255,0.15))' : (it.read ? 'transparent' : 'var(--surface,#15151a)'), opacity: it.read ? 0.72 : 1 },
+      compactStyle: { display: 'flex', alignItems: 'center', gap: '12px', padding: compactPad, borderBottom: '1px solid var(--border,rgba(255,255,255,0.06))', borderLeft: it.read ? '3px solid transparent' : '3px solid var(--accent,#4f7cff)', background: s.selected.includes(it.id) ? 'var(--accentSoft,rgba(79,124,255,0.15))' : 'transparent', opacity: it.read ? 0.72 : 1 },
+      onToggle: () => this.toggleSelect(it.id), onView: () => this.go('itemDetail', { id: it.id }), onToggleRead: () => this.toggleRead(it.id), onDelete: () => this.deleteItem(it.id),
+    });
+    const rows = filtered.map(mapRow);
+    const ids = filtered.map(i => i.id);
+    const allSelected = ids.length > 0 && ids.every(i => s.selected.includes(i));
+
+    // grouped
+    const groups = s.types.map(t => {
+      const its = filtered.filter(i => i.type === t.name);
+      return its.length ? { type: t.name, typeChip: this.chip('type'), count: its.length, unread: its.filter(i => !i.read).length, items: its.map(mapRow) } : null;
+    }).filter(Boolean);
+
+    const stateBtn = (active) => ({ background: active ? 'var(--surface2,#1b1b22)' : 'transparent', color: active ? 'var(--text,#e9e9ec)' : 'var(--text3,#646470)', border: 'none', borderRadius: '6px', padding: '6px 12px', font: '600 12px var(--fontUi)', cursor: 'pointer' });
+    const viewOptions = [['table', 'Table'], ['compact', 'Compact'], ['grouped', 'Grouped']].map(([k, l]) => ({ label: l, onClick: () => this.setView(k), style: { background: s.itemsView === k ? 'var(--accent,#4f7cff)' : 'transparent', color: s.itemsView === k ? 'var(--accentText,#fff)' : 'var(--text3,#646470)', border: 'none', borderRadius: '6px', padding: '6px 13px', font: '600 12px var(--fontUi)', cursor: 'pointer' } }));
+
+    // item detail
+    const di = s.route.params && s.route.params.id ? s.items.find(i => i.id === s.route.params.id) : null;
+    let detail = null;
+    if (di) {
+      detail = {
+        id: di.id, type: di.type, status: di.read ? 'read' : 'unread', typeChip: this.chip('type'), statusChip: this.chip(di.read ? 'read' : 'unread'),
+        toggleLabel: di.read ? 'Mark unread' : 'Ack', payload: JSON.stringify(di.payload, null, 2),
+        meta: [{ k: 'ID', v: di.id }, { k: 'Type', v: di.type }, { k: 'Source', v: di.source }, { k: 'Created', v: this.fmtAbs(di.minAgo) }, { k: 'Read', v: di.read ? this.fmtAbs(di.readMin || 0) : 'unread' }],
+        onToggleRead: () => this.toggleRead(di.id), onDelete: () => this.deleteItem(di.id, { name: 'items', params: {} }), onCopy: () => this.copy(JSON.stringify(di.payload, null, 2), 'Payload copied'),
+      };
+    }
+
+    // types rows
+    const typeRows = s.types.map(t => ({
+      name: t.name, description: t.description, updated: this.fmtAgo(t.updatedMin) === 'just now' ? 'just now' : 'updated ' + this.fmtAgo(t.updatedMin), expanded: s.expanded === t.name, toggleLabel: s.expanded === t.name ? 'Hide usage' : 'Usage examples',
+      submitCurl: this.curlSubmit(t), pollCurl: this.curlPoll(t),
+      onToggle: () => this.toggleExpand(t.name), onEdit: () => this.startEdit(t.name), onCopySubmit: () => this.copy(this.curlSubmit(t), 'Submit snippet copied'), onCopyPoll: () => this.copy(this.curlPoll(t), 'Poll snippet copied'),
+    }));
+
+    // keys rows
+    const keyRows = s.keys.map(k => ({
+      name: k.name, scope: k.scope, created: this.fmtAgo(k.createdMin), status: k.revoked ? 'revoked' : 'active', active: !k.revoked,
+      scopeChip: this.chip(k.scope === 'read' ? 'readScope' : k.scope), statusChip: this.chip(k.revoked ? 'revoked' : 'active'), onRevoke: () => this.revokeKey(k.id),
+    }));
+
+    return {
+      rootStyle, themeOptions, navItems, isApp,
+      isLogin: !s.authed, login: this.login, logout: this.logout,
+      goDashboard: this.goDashboard, goItems: this.goItems, goTypes: this.goTypes, goKeys: this.goKeys,
+      banner: s.banner, bannerStyle, closeBanner: this.closeBanner,
+      isDashboard: isApp && r === 'dashboard', isItems: isApp && r === 'items', isItemDetail: isApp && r === 'itemDetail', isTypes: isApp && r === 'types', isTypeEdit: isApp && r === 'typeEdit', isKeys: isApp && r === 'keys',
+      stats, recent, typePills, hasTypes: s.types.length > 0, noTypes: s.types.length === 0,
+      // items
+      filteredCount: filtered.length, unreadCount, typeNames: s.types.map(t => t.name), filterType: s.filterType,
+      onFilterType: this.onFilterType, onFilterAll: this.onFilterAll, onFilterUnread: this.onFilterUnread,
+      stateAllStyle: stateBtn(s.filterState === 'all'), stateUnreadStyle: stateBtn(s.filterState === 'unread'),
+      viewOptions, showTable: s.itemsView === 'table' && filtered.length > 0, showCompact: s.itemsView === 'compact' && filtered.length > 0, showGrouped: s.itemsView === 'grouped' && filtered.length > 0, isEmpty: filtered.length === 0,
+      rows, groups, allSelected, toggleSelectAll: this.toggleSelectAll,
+      hasSelection: s.selected.length > 0, selectionCount: s.selected.length, bulkAck: this.bulkAck, bulkDelete: this.bulkDelete, clearSelection: this.clearSelection,
+      // detail
+      detail, detailFound: !!detail, detailMissing: r === 'itemDetail' && !detail,
+      // types
+      typeRows, typeForm: s.typeForm, onTypeName: this.onTypeName, onTypeDesc: this.onTypeDesc, onTypeSchema: this.onTypeSchema, registerType: this.registerType,
+      editName: s.editForm.name, editForm: s.editForm, onEditDesc: this.onEditDesc, onEditSchema: this.onEditSchema, saveType: this.saveType,
+      // keys
+      keyRows, newKey: s.newKey, copyNewKey: () => this.copy(s.newKey && s.newKey.token, 'Token copied'), keyForm: s.keyForm, onKeyName: this.onKeyName, onKeyScope: this.onKeyScope, createKey: this.createKey,
+      // modal/toast
+      modal: s.modal, closeModal: this.closeModal, stop: this.stop, copied: s.copied,
+    };
+  }
+
+  statCard(accent) { return { textAlign: 'left', background: 'var(--surface,#15151a)', border: '1px solid ' + (accent ? 'var(--accentBorder,rgba(79,124,255,0.4))' : 'var(--border,rgba(255,255,255,0.09))'), borderRadius: 'var(--radius,8px)', padding: '18px 18px 16px', cursor: 'pointer', transition: 'transform 0.12s' }; }
+}
+</script>
+</body>
+</html>

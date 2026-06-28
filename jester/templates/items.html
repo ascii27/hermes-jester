@@ -1,48 +1,128 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Items</h1>
+{% set qtype = selected_type or 'all' %}
+<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;">
+  <div>
+    <h1 class="page">Items <span class="count">· {{ items|length }}</span></h1>
+    <p class="subtitle">Browse and triage the queue.</p>
+  </div>
+  <div class="seg" role="group" aria-label="View">
+    <button type="button" data-view-btn="table">Table</button>
+    <button type="button" data-view-btn="compact">Compact</button>
+    <button type="button" data-view-btn="grouped">Grouped</button>
+  </div>
+</div>
 
-<form method="get" action="/ui/items" class="filters">
-  <label>Type
-    <select name="type">
-      <option value="">All</option>
+<!-- Filters -->
+<div class="filters">
+  <form method="get" action="/ui/items" style="display:contents;">
+    <input type="hidden" name="state" value="{{ state }}">
+    <select name="type" data-autosubmit aria-label="Filter by type">
+      <option value="">All types</option>
       {% for t in types %}
       <option value="{{ t.name }}" {% if t.name == selected_type %}selected{% endif %}>{{ t.name }}</option>
       {% endfor %}
     </select>
-  </label>
-  <label>State
-    <select name="state">
-      <option value="all" {% if state == 'all' %}selected{% endif %}>All</option>
-      <option value="unread" {% if state == 'unread' %}selected{% endif %}>Unread only</option>
-    </select>
-  </label>
-  <button class="btn" type="submit">Filter</button>
+  </form>
+  <div class="seg">
+    <a href="/ui/items?type={{ selected_type }}&state=all" class="{{ 'active' if state != 'unread' else '' }}">All</a>
+    <a href="/ui/items?type={{ selected_type }}&state=unread" class="{{ 'active' if state == 'unread' else '' }}">Unread only</a>
+  </div>
+  <span class="spacer"></span>
+  <span class="count">{{ unread_here }} unread</span>
+</div>
+
+<!-- Bulk bar (revealed by JS when rows are selected) -->
+<div class="bulk-bar hide" data-bulk-bar>
+  <span class="n" data-bulk-count>0 selected</span>
+  <button type="button" class="btn primary sm" data-bulk-action="ack">Ack selected</button>
+  <button type="button" class="btn danger sm" data-bulk-action="delete">Delete selected</button>
+  <span class="spacer"></span>
+  <button type="button" class="link-btn" data-bulk-clear>Clear</button>
+</div>
+<form method="post" action="/ui/items/bulk" data-bulk-form class="hide">
+  <input type="hidden" name="action" value="">
 </form>
 
-<table class="grid">
-  <thead><tr><th>Created</th><th>Type</th><th>Source</th><th>Status</th><th>Preview</th><th></th></tr></thead>
-  <tbody>
+{% if not items %}
+<div class="empty">
+  <div class="icon">🗒️</div>
+  <p>No items.</p>
+</div>
+{% else %}
+
+<!-- TABLE VIEW -->
+<div data-view="table" class="panel">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:38px;padding-left:16px;"><input type="checkbox" data-select-all aria-label="Select all"></th>
+        <th style="width:92px;">Created</th>
+        <th style="width:150px;">Type</th>
+        <th style="width:120px;">Source</th>
+        <th style="width:92px;">Status</th>
+        <th>Preview</th>
+        <th style="width:150px;"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in items %}
+      <tr class="{{ 'unread' if not i.read_at else '' }}">
+        <td style="padding-left:16px;"><input type="checkbox" data-row-check value="{{ i.id }}" aria-label="Select item"></td>
+        <td class="cell-time">{{ i.created_at | ago }}</td>
+        <td><span class="chip type">{{ i.type }}</span></td>
+        <td class="cell-source">{{ i.source }}</td>
+        <td><span class="chip {{ 'read' if i.read_at else 'unread' }}">{{ 'read' if i.read_at else 'unread' }}</span></td>
+        <td class="cell-preview">{{ i.payload | tojson }}</td>
+        <td class="actions">
+          <a class="row-act view" href="/ui/items/{{ i.id }}">View</a>
+          {% if i.read_at %}
+          <form class="inline-form" method="post" action="/ui/items/{{ i.id }}/unread"><button class="row-act toggle">unread</button></form>
+          {% else %}
+          <form class="inline-form" method="post" action="/ui/items/{{ i.id }}/ack"><button class="row-act toggle">ack</button></form>
+          {% endif %}
+          <form class="inline-form" method="post" action="/ui/items/{{ i.id }}/delete" data-confirm="This permanently removes the item." data-confirm-title="Delete item?" data-confirm-label="Delete"><button class="row-act del">del</button></form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- COMPACT VIEW -->
+<div data-view="compact" class="panel hide">
   {% for i in items %}
-    <tr class="{{ 'read' if i.read_at else 'unread' }}">
-      <td class="muted">{{ i.created_at }}</td>
-      <td><code>{{ i.type }}</code></td>
-      <td>{{ i.source }}</td>
-      <td>{% if i.read_at %}<span class="tag">read</span>{% else %}<span class="tag new">unread</span>{% endif %}</td>
-      <td class="preview">{{ i.payload | tojson }}</td>
-      <td class="actions">
-        <a href="/ui/items/{{ i.id }}">View</a>
-        {% if i.read_at %}
-        <form method="post" action="/ui/items/{{ i.id }}/unread"><button class="link">unread</button></form>
-        {% else %}
-        <form method="post" action="/ui/items/{{ i.id }}/ack"><button class="link">ack</button></form>
-        {% endif %}
-        <form method="post" action="/ui/items/{{ i.id }}/delete" onsubmit="return confirm('Delete item?')"><button class="link danger">delete</button></form>
-      </td>
-    </tr>
-  {% else %}
-    <tr><td colspan="6" class="muted">No items.</td></tr>
+  <div class="compact-row {{ 'unread' if not i.read_at else '' }}">
+    <span class="dot {{ 'unread' if not i.read_at else '' }}"></span>
+    <span class="chip type">{{ i.type }}</span>
+    <span class="source">{{ i.source }}</span>
+    <span class="preview">{{ i.payload | tojson }}</span>
+    <span class="ago">{{ i.created_at | ago }}</span>
+    <a class="row-act view" href="/ui/items/{{ i.id }}">View</a>
+  </div>
   {% endfor %}
-  </tbody>
-</table>
+</div>
+
+<!-- GROUPED VIEW -->
+<div data-view="grouped" class="group hide">
+  {% for type_name, group in items|groupby('type') %}
+  <div class="panel">
+    <div class="group-head">
+      <span class="chip type">{{ type_name }}</span>
+      <span class="meta">{{ group|length }} items · {{ group|rejectattr('read_at')|list|length }} unread</span>
+    </div>
+    {% for i in group %}
+    <div class="compact-row {{ 'unread' if not i.read_at else '' }}">
+      <span class="dot {{ 'unread' if not i.read_at else '' }}"></span>
+      <span class="source">{{ i.source }}</span>
+      <span class="preview">{{ i.payload | tojson }}</span>
+      <span class="ago">{{ i.created_at | ago }}</span>
+      <a class="row-act view" href="/ui/items/{{ i.id }}">View</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endif %}
 {% endblock %}

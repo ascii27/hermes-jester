@@ -1,45 +1,64 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Types</h1>
+<div class="page-head">
+  <h1 class="page">Types</h1>
+  <p class="subtitle">The catalog of accepted item types. Each carries a JSON Schema.</p>
+</div>
 
-<table class="grid">
-  <thead><tr><th>Name</th><th>Description</th><th>Updated</th><th></th></tr></thead>
-  <tbody>
+<div class="type-list">
   {% for t in types %}
-    <tr>
-      <td><code>{{ t.name }}</code></td>
-      <td>{{ t.description }}</td>
-      <td class="muted">{{ t.updated_at }}</td>
-      <td><a href="/ui/types/{{ t.name }}/edit">Edit</a></td>
-    </tr>
-    <tr class="usage-row">
-      <td colspan="4">
-        <details class="usage">
-          <summary>Usage examples</summary>
-          <p class="muted">Submit an item (needs a <code>write</code> key):</p>
-          <pre>curl -X POST {{ base_url }}/api/item/{{ t.name }} \
+  <div class="type-row">
+    <div class="head">
+      <code class="name">{{ t.name }}</code>
+      <span class="desc">{{ t.description }}</span>
+      <span class="updated">{{ t.updated_at | ago }}</span>
+      <a class="btn ghost sm" href="/ui/types/{{ t.name }}/edit">Edit</a>
+    </div>
+    <details class="usage-wrap">
+      <summary class="usage-toggle">Usage examples</summary>
+      <div class="usage">
+        <div>
+          <div class="label-row">
+            <span class="label">Submit an item · needs write key</span>
+            <button type="button" class="btn subtle sm" data-copy-target="#submit-{{ loop.index }}" data-copy-label="curl copied">Copy</button>
+          </div>
+          <pre class="hj-scroll" id="submit-{{ loop.index }}">curl -X POST {{ base_url }}/api/item/{{ t.name }} \
   -H "Authorization: Bearer $WRITE_KEY" \
   -H "Content-Type: application/json" \
   -d '{{ examples[t.name] }}'</pre>
-          <p class="muted">Poll new items of this type (needs a <code>read</code> key):</p>
-          <pre>curl {{ base_url }}/api/item/{{ t.name }} \
+        </div>
+        <div>
+          <div class="label-row">
+            <span class="label">Poll this type · needs read key</span>
+            <button type="button" class="btn subtle sm" data-copy-target="#poll-{{ loop.index }}" data-copy-label="curl copied">Copy</button>
+          </div>
+          <pre class="hj-scroll" id="poll-{{ loop.index }}">curl {{ base_url }}/api/item/{{ t.name }}?unread=true \
   -H "Authorization: Bearer $READ_KEY"</pre>
-        </details>
-      </td>
-    </tr>
+        </div>
+      </div>
+    </details>
+  </div>
   {% else %}
-    <tr><td colspan="4" class="muted">No types yet.</td></tr>
+  <div class="empty"><p>No types yet.</p></div>
   {% endfor %}
-  </tbody>
-</table>
+</div>
 
-<h2>Register a type</h2>
-<form method="post" action="/ui/types" class="stack">
-  <label>Name <input name="name" value="{{ form.name if form else '' }}" required></label>
-  <label>Description <input name="description" value="{{ form.description if form else '' }}"></label>
-  <label>JSON Schema (payload)
-    <textarea name="schema" rows="12" required>{{ form.schema if form else '{\n  "type": "object",\n  "properties": {},\n  "required": []\n}' }}</textarea>
-  </label>
-  <button class="btn primary" type="submit">Register</button>
-</form>
+<div class="form-card">
+  <h2>Register a type</h2>
+  <form method="post" action="/ui/types">
+    <div class="field-grid" style="margin-bottom:14px;">
+      <div>
+        <label class="field-label">Name</label>
+        <input class="field" style="margin:0;" name="name" placeholder="e.g. github-pr" value="{{ form.name if form else '' }}" required>
+      </div>
+      <div>
+        <label class="field-label">Description</label>
+        <input class="field" style="margin:0;" name="description" placeholder="What this type carries" value="{{ form.description if form else '' }}">
+      </div>
+    </div>
+    <label class="field-label">JSON Schema</label>
+    <textarea name="schema" rows="10" spellcheck="false" required>{{ form.schema if form else '{\n  "type": "object",\n  "properties": {},\n  "required": []\n}' }}</textarea>
+    <div style="margin-top:16px;"><button class="btn primary" type="submit">Register type</button></div>
+  </form>
+</div>
 {% endblock %}
