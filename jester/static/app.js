@@ -9,7 +9,7 @@
   var THEMES = ["midnight", "paper", "console"];
   function currentTheme() {
     var t = localStorage.getItem("hj-theme");
-    return THEMES.indexOf(t) >= 0 ? t : "midnight";
+    return THEMES.indexOf(t) >= 0 ? t : "console";
   }
   function applyTheme(t) {
     document.documentElement.setAttribute("data-theme", t);
