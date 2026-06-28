@@ -1,19 +1,65 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Dashboard</h1>
-<div class="cards">
-  <div class="card"><div class="num">{{ counts.total }}</div><div class="lbl">Items</div></div>
-  <div class="card"><div class="num">{{ counts.unread }}</div><div class="lbl">Unread</div></div>
-  <div class="card"><div class="num">{{ types|length }}</div><div class="lbl">Types</div></div>
-  <div class="card"><div class="num">{{ key_count }}</div><div class="lbl">API keys</div></div>
+<div class="page-head">
+  <h1 class="page">Overview</h1>
+  <p class="subtitle">Queue health at a glance.</p>
 </div>
 
-<h2>Registered types</h2>
-{% if types %}
-<ul class="pill-list">
-  {% for t in types %}<li><a href="/ui/types">{{ t.name }}</a></li>{% endfor %}
-</ul>
-{% else %}
-<p class="muted">No types registered yet. <a href="/ui/types">Register one</a>.</p>
-{% endif %}
+<div class="stat-grid">
+  <a class="stat-card" href="/ui/items">
+    <div class="label">Items</div>
+    <div class="value">{{ counts.total }}</div>
+    <div class="sub">total in queue</div>
+  </a>
+  <a class="stat-card" href="/ui/items?state=unread">
+    <div class="label">Unread</div>
+    <div class="value accent">{{ counts.unread }}</div>
+    <div class="sub">awaiting hermes</div>
+  </a>
+  <a class="stat-card" href="/ui/types">
+    <div class="label">Types</div>
+    <div class="value">{{ types|length }}</div>
+    <div class="sub">registered</div>
+  </a>
+  <a class="stat-card" href="/ui/keys">
+    <div class="label">API keys</div>
+    <div class="value">{{ key_count }}</div>
+    <div class="sub">issued</div>
+  </a>
+</div>
+
+<div class="dash-grid">
+  <div class="panel">
+    <div class="panel-head">
+      <span class="title">Recent activity</span>
+      <a class="link-btn" href="/ui/items">View all →</a>
+    </div>
+    {% for r in recent %}
+    <a class="activity-row" href="/ui/items/{{ r.id }}">
+      <span class="dot {{ 'unread' if not r.read_at else '' }}"></span>
+      <span class="chip type">{{ r.type }}</span>
+      <span class="preview">{{ r.payload | tojson }}</span>
+      <span class="ago">{{ r.created_at | ago }}</span>
+    </a>
+    {% else %}
+    <div class="panel-pad muted">No items yet.</div>
+    {% endfor %}
+  </div>
+
+  <div class="panel panel-pad">
+    <div class="panel-head" style="padding:0 0 14px;">
+      <span class="title">Registered types</span>
+      <a class="link-btn" href="/ui/types">Manage →</a>
+    </div>
+    {% if types %}
+    <div class="type-pills">
+      {% for t in types %}
+      <a class="type-pill" href="/ui/items?type={{ t.name }}">{{ t.name }}</a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="muted" style="margin:0;">No types yet. <a href="/ui/types">Register one →</a></p>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

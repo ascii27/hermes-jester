@@ -1,15 +1,27 @@
 {% extends "base.html" %}
-{% block content %}
-<div class="landing">
-  <div class="landing-card">
-    <div class="logo">🃏</div>
-    <h1>hermes-jester</h1>
-    <p class="tagline">An authenticated inbox &amp; queue for hermes.</p>
+{% block content_noauth %}
+<div class="login-wrap">
+  <div class="login-themes">
+    <div class="theme-switch pills" role="group" aria-label="Theme">
+      <button class="theme-pill" data-theme-name="midnight">Midnight</button>
+      <button class="theme-pill" data-theme-name="paper">Paper</button>
+      <button class="theme-pill" data-theme-name="console">Console</button>
+    </div>
+  </div>
+  <div class="login-card">
+    <div class="brand">
+      <div class="mark">🃏</div>
+      <div>
+        <div class="title">hermes-jester</div>
+        <div class="sub">authenticated inbox &amp; queue</div>
+      </div>
+    </div>
+    <p class="lead">An authenticated inbox &amp; queue for <b>hermes</b>.</p>
     <p class="blurb">
-      Other apps push schema-validated items here; hermes drains the queue on a
-      cron, reads only what's new, and acks what it handled.
+      Producers push typed, schema-validated items in. hermes drains the queue on
+      a schedule and acks what it handles — never twice.
     </p>
-    <a class="btn primary signin" href="/auth/login">
+    <a class="signin" href="/auth/login">
       <span class="g">G</span> Sign in with Google
     </a>
     <p class="fineprint">Access is limited to authorized accounts.</p>

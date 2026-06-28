@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Edit type <code>{{ type_def.name }}</code></h1>
-<form method="post" action="/ui/types/{{ type_def.name }}" class="stack">
-  <label>Description <input name="description" value="{{ type_def.description }}"></label>
-  <label>JSON Schema (payload)
-    <textarea name="schema" rows="16" required>{{ schema_text }}</textarea>
-  </label>
-  <div class="row">
-    <button class="btn primary" type="submit">Save</button>
-    <a class="btn" href="/ui/types">Cancel</a>
-  </div>
-</form>
+<a class="back-link" href="/ui/types">← Types</a>
+<h1 class="page" style="margin-bottom:20px;">Edit <code class="mono" style="color:var(--accent);">{{ type_def.name }}</code></h1>
+<div class="form-card" style="max-width:780px;">
+  <form method="post" action="/ui/types/{{ type_def.name }}">
+    <label class="field-label">Description</label>
+    <input class="field" name="description" value="{{ type_def.description }}">
+    <label class="field-label">JSON Schema</label>
+    <textarea name="schema" rows="14" spellcheck="false" required>{{ schema_text }}</textarea>
+    <div class="btn-row" style="margin-top:18px;">
+      <button class="btn primary" type="submit">Save</button>
+      <a class="btn ghost" href="/ui/types">Cancel</a>
+    </div>
+  </form>
+</div>
 {% endblock %}

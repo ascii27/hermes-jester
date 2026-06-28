@@ -1,28 +1,40 @@
 {% extends "base.html" %}
 {% block content %}
+<a class="back-link" href="/ui/items">← Items</a>
 {% if not item %}
-<p class="muted">Item not found. <a href="/ui/items">Back to items</a></p>
+<div class="empty">
+  <p style="margin-bottom:12px;">Item not found.</p>
+  <a class="link-btn" href="/ui/items">← Back to Items</a>
+</div>
 {% else %}
-<h1>Item</h1>
-<a href="/ui/items">&larr; Back</a>
-<dl class="meta">
-  <dt>ID</dt><dd><code>{{ item.id }}</code></dd>
-  <dt>Type</dt><dd><code>{{ item.type }}</code></dd>
-  <dt>Source</dt><dd>{{ item.source }}</dd>
-  <dt>Created</dt><dd>{{ item.created_at }}</dd>
-  <dt>Read</dt><dd>{{ item.read_at or 'unread' }}</dd>
-</dl>
-
-<h2>Payload</h2>
-<pre>{{ payload_text }}</pre>
-
-<div class="row">
+<div class="detail-head">
+  <span class="chip type">{{ item.type }}</span>
+  <span class="chip {{ 'read' if item.read_at else 'unread' }}">{{ 'read' if item.read_at else 'unread' }}</span>
+  <code>{{ item.id }}</code>
+  <span class="spacer"></span>
   {% if item.read_at %}
-  <form method="post" action="/ui/items/{{ item.id }}/unread"><button class="btn">Mark unread</button></form>
+  <form class="inline-form" method="post" action="/ui/items/{{ item.id }}/unread"><button class="btn primary">Mark unread</button></form>
   {% else %}
-  <form method="post" action="/ui/items/{{ item.id }}/ack"><button class="btn primary">Ack (mark read)</button></form>
+  <form class="inline-form" method="post" action="/ui/items/{{ item.id }}/ack"><button class="btn primary">Ack (mark read)</button></form>
   {% endif %}
-  <form method="post" action="/ui/items/{{ item.id }}/delete" onsubmit="return confirm('Delete item?')"><button class="btn danger">Delete</button></form>
+  <form class="inline-form" method="post" action="/ui/items/{{ item.id }}/delete" data-confirm="This permanently removes the item." data-confirm-title="Delete item?" data-confirm-label="Delete"><button class="btn danger">Delete</button></form>
+</div>
+
+<div class="detail-grid">
+  <div class="panel meta-list">
+    <div class="meta-row"><span class="k">ID</span><span class="v">{{ item.id }}</span></div>
+    <div class="meta-row"><span class="k">Type</span><span class="v">{{ item.type }}</span></div>
+    <div class="meta-row"><span class="k">Source</span><span class="v">{{ item.source or '—' }}</span></div>
+    <div class="meta-row"><span class="k">Created</span><span class="v">{{ item.created_at | absdt }}</span></div>
+    <div class="meta-row"><span class="k">Read</span><span class="v">{{ item.read_at | absdt if item.read_at else 'unread' }}</span></div>
+  </div>
+  <div class="payload-box">
+    <div class="head">
+      <span class="label">Payload</span>
+      <button type="button" class="btn subtle sm" data-copy-target="#payload-pre" data-copy-label="Payload copied">Copy</button>
+    </div>
+    <pre class="hj-scroll" id="payload-pre">{{ payload_text }}</pre>
+  </div>
 </div>
 {% endif %}
 {% endblock %}

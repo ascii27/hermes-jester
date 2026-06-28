@@ -1,44 +1,73 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>API keys</h1>
+<div class="page-head">
+  <h1 class="page">API keys</h1>
+  <p class="subtitle">Issue scoped bearer tokens for producers and hermes.</p>
+</div>
 
 {% if new_token %}
-<div class="alert success">
-  <strong>New key “{{ new_token_name }}” created.</strong> Copy it now — it won't be shown again:
-  <pre class="token">{{ new_token }}</pre>
+<div class="key-reveal">
+  <div class="head"><span>🔑</span><span>Key <code>{{ new_token_name }}</code> created</span></div>
+  <p class="note">Copy it now — it won't be shown again.</p>
+  <div class="token-row">
+    <code class="token" id="new-token">{{ new_token }}</code>
+    <button type="button" class="copy" data-copy-target="#new-token" data-copy-label="Token copied">Copy token</button>
+  </div>
 </div>
 {% endif %}
 
-<table class="grid">
-  <thead><tr><th>Name</th><th>Scope</th><th>Created</th><th>Status</th><th></th></tr></thead>
-  <tbody>
-  {% for k in keys %}
-    <tr>
-      <td>{{ k.name }}</td>
-      <td><span class="tag">{{ k.scope }}</span></td>
-      <td class="muted">{{ k.created_at }}</td>
-      <td>{% if k.revoked_at %}<span class="tag">revoked</span>{% else %}<span class="tag new">active</span>{% endif %}</td>
-      <td>
-        {% if not k.revoked_at %}
-        <form method="post" action="/ui/keys/{{ k.id }}/revoke" onsubmit="return confirm('Revoke this key?')"><button class="link danger">revoke</button></form>
-        {% endif %}
-      </td>
-    </tr>
-  {% else %}
-    <tr><td colspan="5" class="muted">No keys yet.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+<div class="panel" style="margin-bottom:24px;">
+  <table class="data-table" style="table-layout:auto;">
+    <thead>
+      <tr>
+        <th style="padding-left:18px;">Name</th>
+        <th>Scope</th>
+        <th>Created</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for k in keys %}
+      <tr>
+        <td style="padding-left:18px;font-family:var(--fontMono);font-weight:600;color:var(--text);">{{ k.name }}</td>
+        <td><span class="chip scope-{{ k.scope }}">{{ k.scope }}</span></td>
+        <td class="cell-time">{{ k.created_at | ago }}</td>
+        <td><span class="chip {{ 'revoked' if k.revoked_at else 'active' }}">{{ 'revoked' if k.revoked_at else 'active' }}</span></td>
+        <td class="actions" style="padding-right:18px;">
+          {% if not k.revoked_at %}
+          <form class="inline-form" method="post" action="/ui/keys/{{ k.id }}/revoke" data-confirm="Revoking immediately invalidates this key." data-confirm-title="Revoke key?" data-confirm-label="Revoke"><button class="row-act del">Revoke</button></form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted" style="padding:18px;">No keys yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-<h2>Create a key</h2>
-<form method="post" action="/ui/keys" class="stack">
-  <label>Name <input name="name" placeholder="e.g. hermes-cron or acme-webhook" required></label>
-  <label>Scope
-    <select name="scope">
-      {% for s in scopes %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
-    </select>
-  </label>
-  <button class="btn primary" type="submit">Create key</button>
-</form>
-<p class="muted">Scopes: <code>write</code> = submit items · <code>read</code> = poll/ack (hermes) · <code>admin</code> = manage types &amp; keys.</p>
+<div class="form-card">
+  <h2>Create a key</h2>
+  <form method="post" action="/ui/keys">
+    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;">
+        <label class="field-label">Name</label>
+        <input class="field" style="margin:0;font-family:var(--fontMono);" name="name" placeholder="hermes-cron or acme-webhook" required>
+      </div>
+      <div style="width:160px;">
+        <label class="field-label">Scope</label>
+        <select name="scope" style="width:100%;">
+          {% for s in scopes %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+        </select>
+      </div>
+      <button class="btn primary" type="submit">Create</button>
+    </div>
+    <div class="legend">
+      <span><b class="write">write</b> · submit items</span>
+      <span><b class="read">read</b> · poll/ack (hermes)</span>
+      <span><b class="admin">admin</b> · manage types &amp; keys</span>
+    </div>
+  </form>
+</div>
 {% endblock %}
